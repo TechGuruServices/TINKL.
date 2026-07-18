@@ -2367,7 +2367,14 @@
           </div>
           <div class="card">
             <div class="section-head margin-0-0-12">
-              <div class="section-title"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 12 15 9"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg> Weight</div><span class="section-link" id="addWeightBtn">+ Log</span>
+              <div class="section-title"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 12 15 9"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg> Weight</div>
+              <div class="row" style="gap:8px;align-items:center">
+                <div class="row chart-tabs" id="weightUnitToggle" style="gap:4px">
+                  <button type="button" class="chart-tab" data-wunit="kg">kg</button>
+                  <button type="button" class="chart-tab" data-wunit="lbs">lbs</button>
+                </div>
+                <span class="section-link" id="addWeightBtn">+ Log</span>
+              </div>
             </div>
             <div class="chart-wrap h-180" id="weightChartWrap"><canvas id="weightChart"></canvas></div>
             <div class="feed mt-4" id="weightList"></div>
@@ -2729,6 +2736,7 @@
         quietStart: '22:00',
         quietEnd: '07:00',
         mutedTypes: [],
+        weightUnit: 'kg',
       },
       calDate: new Date(), calSel: new Date(),
       chartRange: 7, careFilter: 'all',
@@ -2756,6 +2764,19 @@
       greet() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; },
       isToday(d) { return new Date(d).toDateString() === new Date().toDateString(); },
       today(d = new Date()) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; },
+      // Guards every numeric display against undefined/null/blank/non-numeric
+      // input turning into NaN on screen (e.g. corrupted records, cleared
+      // inputs, bad cloud-restore data). Never throws, always returns a number.
+      safeNum(val, fallback = 0) {
+        const n = typeof val === 'string' ? parseFloat(val) : val;
+        return Number.isFinite(n) ? n : fallback;
+      },
+      // Weights can be logged in kg or lbs per-entry; everything that
+      // compares/plots multiple entries together must normalize to a single
+      // source of truth first (kg) or the numbers are meaningless.
+      toKg(value, unit) { const n = U.safeNum(value); return unit === 'lbs' ? n / 2.20462 : n; },
+      kgToLbs(kg) { return U.safeNum(kg) * 2.20462; },
+      fmtWeight(kg, unit) { return unit === 'lbs' ? (U.kgToLbs(kg)).toFixed(1) + ' lbs' : U.safeNum(kg).toFixed(1) + ' kg'; },
       toast(m, t = 'info') {
         const w = document.getElementById('toastWrap');
         const e = document.createElement('div');
@@ -3459,7 +3480,11 @@
     <input type="file" id="photoInCamera" accept="image/*" capture="environment" hidden />
     <div class="form-row"><label>Name *</label><input id="pName" value="${pet ? U.esc(pet.name) : ''}" placeholder="Buddy" /></div>
     <div class="form-grid">
-      <div class="form-row"><label>Breed</label><input id="pBreed" value="${pet ? U.esc(pet.breed || '') : ''}" placeholder="Golden Retriever" /></div>
+      <div class="form-row"><label>Breed</label><input id="pBreed" list="breedList" value="${pet ? U.esc(pet.breed || '') : ''}" placeholder="Golden Retriever" />
+        <datalist id="breedList">
+          ${['Labrador Retriever','Golden Retriever','German Shepherd','French Bulldog','Poodle','Bulldog','Rottweiler','Beagle','Dachshund','German Shorthaired Pointer','Pembroke Welsh Corgi','Australian Shepherd','Yorkshire Terrier','Boxer','Great Dane','Siberian Husky','Cavalier King Charles Spaniel','Doberman Pinscher','Miniature Schnauzer','Shih Tzu','Border Collie','Boston Terrier','Pomeranian','Havanese','Chihuahua','Shetland Sheepdog','Bernese Mountain Dog','Brittany','English Springer Spaniel','Pug','Cocker Spaniel','Mixed breed','Domestic Shorthair Cat','Domestic Longhair Cat','Maine Coon','Siamese','Persian','Ragdoll','British Shorthair','Bengal','Sphynx'].map(b => `<option value="${b}">`).join('')}
+        </datalist>
+      </div>
       <div class="form-row"><label>Gender</label><select id="pGender"><option value="">—</option><option ${pet?.gender === 'male' ? 'selected' : ''}>male</option><option ${pet?.gender === 'female' ? 'selected' : ''}>female</option></select></div>
     </div>
     <div class="form-grid">
@@ -3509,7 +3534,7 @@
               breed: b.querySelector('#pBreed').value.trim(),
               gender: b.querySelector('#pGender').value,
               birthday: b.querySelector('#pBirth').value,
-              weight: b.querySelector('#pWeight').value,
+              weight: b.querySelector('#pWeight').value ? U.safeNum(b.querySelector('#pWeight').value) : '',
               parent: b.querySelector('#pParent').value.trim(),
               chip: b.querySelector('#pChip').value.trim(),
               notes: b.querySelector('#pNotes').value.trim(),
@@ -3568,19 +3593,40 @@
     }
 
     /* ================ Health ================ */
+    // Rule-based, deterministic schedule math — never guesses or infers from
+    // a medication's name. Only fires off numbers the user explicitly
+    // entered (start date + repeat interval), the same way vaccination
+    // "next due" dates are just stored/read, never invented.
+    function calculateNextMedDue(m) {
+      if (!m.intervalDays || !m.start) return null;
+      const interval = U.safeNum(m.intervalDays);
+      if (interval <= 0) return null;
+      const start = new Date(m.start); if (Number.isNaN(start.getTime())) return null;
+      const now = Date.now();
+      if (start.getTime() > now) return start.getTime();
+      const cycles = Math.ceil((now - start.getTime()) / (interval * 86400000));
+      const next = start.getTime() + cycles * interval * 86400000;
+      if (m.until) { const until = new Date(m.until).getTime(); if (!Number.isNaN(until) && next > until) return null; }
+      return next;
+    }
     function renderHealth() {
       // Meds
       const meds = S.meds.filter(m => m.petId === S.activePetId);
-      document.getElementById('medList').innerHTML = meds.length ? meds.map(m => `
+      document.getElementById('medList').innerHTML = meds.length ? meds.map(m => {
+        const nextDue = calculateNextMedDue(m);
+        const overdue = nextDue && nextDue < Date.now();
+        const dueTxt = nextDue ? ` · ${overdue ? '⚠️ overdue' : 'next dose'} ${U.fmtDate(nextDue)}` : '';
+        return `
     <div class="feed-item">
       <div class="feed-ic ic-med">${Icon('pill')}</div>
       <div class="feed-body">
         <div class="feed-title">${U.esc(m.name)} ${m.dose ? '· ' + U.esc(m.dose) : ''}</div>
-        <div class="feed-meta">${U.esc(m.schedule || 'As needed')}${m.until ? ' · until ' + U.fmtDate(m.until) : ''}</div>
+        <div class="feed-meta">${U.esc(m.schedule || 'As needed')}${m.until ? ' · until ' + U.fmtDate(m.until) : ''}${dueTxt}</div>
       </div>
       <button class="feed-del" data-del-med="${m.id}">${Icon('trash')}</button>
     </div>
-  `).join('') : emptyRow('No medications yet');
+  `;
+      }).join('') : emptyRow('No medications yet');
       document.querySelectorAll('[data-del-med]').forEach(b => b.onclick = async () => {
         if (await U.confirm('Remove medication?', 'This removes the medication entry.')) {
           await DB.del('meds', b.dataset.delMed); await loadAll(); renderHealth();
@@ -3612,11 +3658,16 @@
       // Weight
       const ws = S.weights.filter(w => w.petId === S.activePetId).sort((a, b) => a.ts - b.ts);
       renderWeightChart(ws);
+      const wu = S.settings.weightUnit || 'kg';
+      document.querySelectorAll('#weightUnitToggle [data-wunit]').forEach(b => {
+        b.classList.toggle('active', b.dataset.wunit === wu);
+        b.onclick = () => { S.settings.weightUnit = b.dataset.wunit; saveSettings(); renderHealth(); };
+      });
       document.getElementById('weightList').innerHTML = ws.length ? [...ws].reverse().slice(0, 6).map(w => `
     <div class="feed-item">
       <div class="feed-ic ic-brand">${Icon('scale')}</div>
       <div class="feed-body">
-        <div class="feed-title">${w.value} ${w.unit}</div>
+        <div class="feed-title">${U.fmtWeight(U.toKg(w.value, w.unit), wu)}</div>
         <div class="feed-meta">${U.fmtDate(w.ts, { year: 'numeric', month: 'short', day: 'numeric' })}${w.note ? ' · ' + U.esc(w.note) : ''}</div>
       </div>
       <button class="feed-del" data-del-w="${w.id}">${Icon('trash')}</button>
@@ -3649,12 +3700,20 @@
       const ctx = document.getElementById('weightChart'); if (!ctx) return;
       if (weightChartI) weightChartI.destroy();
       if (!ws.length) return;
+      const wu = S.settings.weightUnit || 'kg';
+      // Every entry may have been logged in kg or lbs independently — always
+      // normalize to kg first (single source of truth), then convert once to
+      // whichever unit the user wants displayed. Never mix raw stored values.
+      const plotVals = ws.map(w => {
+        const kg = U.toKg(w.value, w.unit);
+        return wu === 'lbs' ? U.kgToLbs(kg) : kg;
+      });
       weightChartI = new Chart(ctx, {
         type: 'line',
         data: {
           labels: ws.map(w => U.fmtDate(w.ts)),
           datasets: [{
-            label: 'Weight', data: ws.map(w => +w.value),
+            label: `Weight (${wu})`, data: plotVals,
             borderColor: '#7c8cff', backgroundColor: 'rgba(124,140,255,0.15)',
             fill: true, tension: 0.35, borderWidth: 3, pointRadius: 3
           }]
@@ -3676,6 +3735,7 @@
         <div class="form-row"><label>Started</label><input type="date" id="mStart" value="${new Date().toISOString().slice(0, 10)}" /></div>
         <div class="form-row"><label>Until (optional)</label><input type="date" id="mUntil" /></div>
       </div>
+      <div class="form-row"><label>Repeats every (days, optional)</label><input type="number" min="1" step="1" id="mInterval" placeholder="e.g. 30 for a monthly flea/tick dose" /></div>
     `,
         actions: [{ label: 'Cancel', v: false }, { label: 'Add', kind: 'primary', v: true }],
         onAction: async (v, close, b) => {
@@ -3688,6 +3748,7 @@
             schedule: b.querySelector('#mSched').value.trim(),
             start: b.querySelector('#mStart').value,
             until: b.querySelector('#mUntil').value,
+            intervalDays: b.querySelector('#mInterval').value ? U.safeNum(b.querySelector('#mInterval').value) : null,
             createdAt: Date.now()
           });
           await loadAll(); renderHealth(); close(); U.toast('Medication added', 'success');
@@ -3728,7 +3789,7 @@
       <div class="form-row"><label>Date</label><input type="date" id="wDate" value="${new Date().toISOString().slice(0, 10)}" /></div>
       <div class="form-grid">
         <div class="form-row"><label>Weight *</label><input type="number" step="0.1" id="wVal" placeholder="12.5" /></div>
-        <div class="form-row"><label>Unit</label><select id="wUnit"><option>kg</option><option>lbs</option></select></div>
+        <div class="form-row"><label>Unit</label><select id="wUnit"><option ${(S.settings.weightUnit||'kg')==='kg'?'selected':''}>kg</option><option ${(S.settings.weightUnit||'kg')==='lbs'?'selected':''}>lbs</option></select></div>
       </div>
       <div class="form-row"><label>Note</label><input id="wNote" placeholder="After vet visit" /></div>
     `,
@@ -3739,7 +3800,7 @@
           if (!val || !S.activePetId) return U.toast('Weight & active pet required', 'error');
           await DB.put('weights', {
             id: U.id(), petId: S.activePetId, ts: new Date(b.querySelector('#wDate').value).getTime(),
-            value: val, unit: b.querySelector('#wUnit').value, note: b.querySelector('#wNote').value.trim()
+            value: U.safeNum(val), unit: b.querySelector('#wUnit').value, note: b.querySelector('#wNote').value.trim()
           });
           await loadAll(); renderHealth(); close(); U.toast('Weight logged', 'success');
         }
@@ -4299,11 +4360,65 @@
       localStorage.setItem('tinkl_last_active', String(now));
     }
 
+    /* ================ Birthdays ================ */
+    // Fires a one-time-per-year notification when today matches a pet's
+    // stored birthday (month + day). Dedup is keyed by pet+year so it can
+    // never double-fire on reload, and reuses the existing notification /
+    // quiet-hours plumbing rather than a separate ad-hoc path.
+    function loadFiredBirthdaysLog() {
+      try {
+        const raw = localStorage.getItem('tinkl_fired_birthdays');
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+      } catch (e) { return new Set(); }
+    }
+    function saveFiredBirthdaysLog(set) {
+      try { localStorage.setItem('tinkl_fired_birthdays', JSON.stringify([...set])); } catch (e) { }
+    }
+    function checkBirthdays() {
+      if (!S.settings.notifications) return;
+      const today = new Date();
+      const fired = loadFiredBirthdaysLog();
+      let firedAny = false;
+      S.pets.forEach(p => {
+        if (!p.birthday) return;
+        const bday = new Date(p.birthday);
+        if (Number.isNaN(bday.getTime())) return;
+        if (bday.getMonth() !== today.getMonth() || bday.getDate() !== today.getDate()) return;
+        const key = p.id + '|' + today.getFullYear();
+        if (fired.has(key)) return;
+        fired.add(key);
+        firedAny = true;
+        const quiet = inQuietHours();
+        if (!quiet) {
+          if (S.settings.vibration && navigator.vibrate) navigator.vibrate([160, 80, 160, 80, 240]);
+          if (S.settings.sound) beep();
+          showBirthdayNotification(p);
+        }
+        U.toast(`🎉 Happy Birthday, ${p.name}!`, 'success');
+      });
+      if (firedAny) saveFiredBirthdaysLog(fired);
+    }
+    async function showBirthdayNotification(p) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const opts = {
+        body: `Hope ${p.name}${p.breed ? ` the ${p.breed}` : ''} has a great day! 🎉`,
+        icon: '/tinkl-logo-paw3-192.png', badge: '/tinkl-logo-paw3-192.png',
+        tag: 'birthday-' + p.id, renotify: true,
+      };
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg && reg.showNotification) { await reg.showNotification(`🎂 Happy Birthday, ${p.name}!`, opts); return; }
+        }
+        new Notification(`🎂 Happy Birthday, ${p.name}!`, opts);
+      } catch (e) { }
+    }
+
     setInterval(checkAlarms, 15000);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') { catchUpMissedAlarms(); checkAlarms(); }
+      if (document.visibilityState === 'visible') { catchUpMissedAlarms(); checkAlarms(); checkBirthdays(); }
     });
-    window.addEventListener('focus', () => { catchUpMissedAlarms(); checkAlarms(); });
+    window.addEventListener('focus', () => { catchUpMissedAlarms(); checkAlarms(); checkBirthdays(); });
 
 
     function beep() {
@@ -4492,6 +4607,7 @@
       updateOnlineStatus();
       catchUpMissedAlarms();
       checkAlarms();
+      checkBirthdays();
       if (S.settings.notifications && 'Notification' in window && Notification.permission === 'default') {
         setTimeout(requestNotifPermission, 4000);
       }
