@@ -1,17 +1,30 @@
 # TINKL. News — Agent Sync File
 
+**Canonical copy:** https://github.com/TechGuruServices/TINKL./blob/main/tinkle-news/SYNC.md
+(permanent link, no expiry).
+Local mirror: `~/workspace/tinkle-news/SYNC.md` — keep them in sync; the repo copy wins.
+
 Shared coordination file for the TINKL. news project. Both agents working this
 project read this file FIRST on every turn and update their own section before
 replying. One project, one shared state.
-
-**Canonical location:** this file in the `TechGuruServices/TINKL.` repo.
-A local mirror lives at `~/workspace/tinkle-news/SYNC.md` — keep them in sync;
-when in doubt, this repo copy wins.
 
 **Partnership scope (per LUCAS 2026-10-18):** this project is a partnership of
 exactly two agents — Muse (coordinator) and the news agent — working together
 specifically on the TINKL. app repository (`TechGuruServices/TINKL.`).
 No other agents touch this project.
+
+## Current repo state (2026-10-18)
+
+- `main` was wiped and rebuilt with the **refactored TINKL. PWA** (61 files:
+  modular `index.html`, `vetpass.html`, `offline.html`, `css/` 6 files,
+  `js/` 30 ES6 modules + app.js, `manifest.json`, `sw.js`,
+  `backend/cloudflare/` worker, `build/`, `docs/`).
+- The old single-file legacy app is gone from `main` (LUCAS holds a backup).
+- PNG icons were NOT pushed (binaries excluded); the holographic-paw brand
+  swap is still pending — manifest still references paw3 icon paths.
+- **Known issue carried over:** `js/modules/sync.js` still hardcodes the
+  backup API secret (`tinkl-sync-secret-123`) — must be fixed before any
+  clinic data touches this (see audit 2026-10-18).
 
 ## Agent roster
 
@@ -36,29 +49,23 @@ No other agents touch this project.
    - Logo: holographic rainbow paw (`~/workspace/tinkle-refactor/tinkl-official-logo.png`).
    - TECHGURU in caps, solo "I" voice on all brand copy.
 
-## Current TINKL. state (2026-10-18)
-
-- Refactored PWA at `~/workspace/tinkle-refactor/tinkl-pwa/` (33 modules, Cloudflare Workers backend).
-- Live browser test 2026-10-14: **12/12 checks passed** on preview `https://40ca58c6.tinkl.pages.dev`.
-- One real bug found + fixed: `emptyRow` import missing in `js/modules/views/health.js`.
-- Launch plan: web artifact `tinkle-launch-plan` + PDF `~/workspace/your_files/tinkl-launch-plan-pdf/tinkl-launch-plan-pdf.pdf` (19 pages).
-- Production site `tinkl.pages.dev` still serves the OLD single-file app — do not confuse with previews.
-- Real-device iPhone test still open (push notifications, Add to Home Screen).
-
 ## In progress
 
 _(agent name — task — started)_
-- FIRST JOINT TASK (per LUCAS 2026-10-18): activate/set up for **Microsoft Edge** —
-  scope unclear, awaiting LUCAS answer: TINKL. PWA on the Microsoft Store
-  (via PWABuilder), or an extension (Review Rocket / DemoGlide) on Edge Add-ons?
+- NEXT (per LUCAS 2026-10-18): news agent to audit the refactored files on `main`
+  and confirm receipt; then deploy to Cloudflare edge / Microsoft Edge.
 
 ## Done
 
 _(agent name — outcome — files/URLs)_
 - Muse — committed this sync file to the TINKL. repo so both agents share one permanent, non-expiring source of truth.
+- Muse — 2026-10-18: wiped `main`, pushed the 61 refactored PWA files (clean tree).
+  Legacy single-file app removed. Awaiting news-agent audit + receipt confirmation.
 
 ## Voice-note log
 
 LUCAS sends voice notes; key points get logged here so nothing is lost.
 
-_(date — summary — decisions)_
+- 2026-10-18 — LUCAS confirmed the legacy single-file app was his personal build;
+  the refactored PWA is the correct codebase. Ordered: wipe `main`, push the 61
+  refactored files, then move to edge/Microsoft Edge deployment.
