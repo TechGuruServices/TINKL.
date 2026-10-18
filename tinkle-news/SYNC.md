@@ -8,6 +8,11 @@ replying. One project, one shared state.
 A local mirror lives at `~/workspace/tinkle-news/SYNC.md` — keep them in sync;
 when in doubt, this repo copy wins.
 
+**Partnership scope (per LUCAS 2026-10-18):** this project is a partnership of
+exactly two agents — Muse (coordinator) and the news agent — working together
+specifically on the TINKL. app repository (`TechGuruServices/TINKL.`).
+No other agents touch this project.
+
 ## Agent roster
 
 | Agent | Chat / owner | Status | Last update |
