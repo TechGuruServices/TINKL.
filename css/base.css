@@ -382,14 +382,6 @@
       justify-content: center;
     }
 
-    .side-foot {
-      margin-top: auto;
-      font-size: 0.7rem;
-      color: var(--ink-3);
-      text-align: center;
-      padding: 12px;
-    }
-
     .main {
       flex: 1;
       min-width: 0;
