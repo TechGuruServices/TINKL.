@@ -18,10 +18,14 @@ new_sqlite_classes = ["TinklBackup"]
 
 # ---------------------------------------------------------------------------
 # Secrets — NEVER put these in wrangler.toml. Set each one with:
-#   npx wrangler secret put API_SECRET
+#   npx wrangler secret put ADMIN_TOKEN        # operator token for /api/push/send
 #   npx wrangler secret put VAPID_JWK          # full JWK JSON from gen-vapid.mjs
 #   npx wrangler secret put VAPID_PUBLIC_KEY   # base64url line from gen-vapid.mjs
 #   npx wrangler secret put VAPID_SUBJECT      # e.g. mailto:you@yourdomain
 #
-# API_SECRET must exactly match the PWA's sync config secret.
+# Backup/push-subscribe auth needs NO server secret: each PWA device
+# generates its own sync credential and the Worker scopes storage to a
+# hash of it. The legacy shared API_SECRET is rejected — delete it after
+# deploying the per-device Worker:
+#   npx wrangler secret delete API_SECRET
 # ---------------------------------------------------------------------------

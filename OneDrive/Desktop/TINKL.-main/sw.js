@@ -12,7 +12,7 @@
  * Cache versioning: bump CACHE_VERSION on every deploy to invalidate cleanly.
  * ========================================================================== */
 
-const CACHE_VERSION = 'tinkl-v6';
+const CACHE_VERSION = 'tinkl-v7';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = '/offline.html';

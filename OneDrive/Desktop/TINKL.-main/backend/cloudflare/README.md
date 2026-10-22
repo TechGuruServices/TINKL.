@@ -28,7 +28,7 @@ cd tinkl-pwa/backend/cloudflare
 # 1. One-time secrets (values never touch source control)
 node worker/gen-vapid.mjs
 # → paste each output line:
-npx wrangler secret put API_SECRET        # must match the PWA's sync secret
+npx wrangler secret put ADMIN_TOKEN       # operator token for /api/push/send
 npx wrangler secret put VAPID_JWK         # full JWK JSON line
 npx wrangler secret put VAPID_PUBLIC_KEY  # base64url line
 npx wrangler secret put VAPID_SUBJECT     # e.g. mailto:you@yourdomain
@@ -41,6 +41,12 @@ npx wrangler deploy
 
 All `/api/*` routes are served by the worker; the service worker never
 caches them (network-only), so backup/restore can never read stale data.
+
+Auth: backup and push-subscribe routes take the PWA's per-device sync
+credential (`Authorization: Bearer <64-hex>`, generated on the device);
+the Worker scopes each backup to a Durable Object named from a SHA-256
+hash of that credential. `/api/push/send` is operator-only and requires
+`ADMIN_TOKEN`. There is no shared client secret.
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|

@@ -90,6 +90,12 @@ function renderSettings() {
   const delBtn = document.getElementById('syncDelBtn');
   if (delBtn) delBtn.onclick = () => SYNC.deleteCloudBackup();
 
+  const recoveryBtn = document.getElementById('syncRecoveryBtn');
+  if (recoveryBtn) recoveryBtn.onclick = () => SYNC.showRecoveryCode();
+
+  const importBtn = document.getElementById('syncImportBtn');
+  if (importBtn) importBtn.onclick = () => SYNC.importRecoveryCode();
+
   const syncStatus = document.getElementById('syncStatus');
   if (syncStatus) {
     const lastPush = Number(localStorage.getItem('tinkl_last_sync_push') || 0);

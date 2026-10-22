@@ -6,15 +6,72 @@ import { render, currentView } from './navigation.js';
 
 /* ================ Cloud Sync (Durable Objects) ================ */
 const SYNC = {
-  // Configuration
-  // In production, these should be injected via a build step or a config file.
-  // The WORKER_URL and API_SECRET must match the Cloudflare Worker environment.
+  // Configuration.
+  // There is deliberately NO shared secret here: anything shipped in the
+  // app is public, so a shared secret cannot protect anyone's backup.
+  // Instead each device generates its own random sync credential (below)
+  // and the Worker scopes every backup to a hash of that credential.
   WORKER_URL: window.TINKL_CONFIG?.WORKER_URL || 'https://tinkl-sync.techguruofficial.workers.dev',
-  API_SECRET: window.TINKL_CONFIG?.API_SECRET || 'tinkl-sync-secret-123', 
 
   SYNC_INTERVAL_MS: 5 * 60 * 1000, // Auto-sync every 5 minutes (optional)
   DEVICE_ID: null, // Set on app init
   DATA_VERSION: 1, // Bump this if you change the data schema
+  CREDENTIAL_KEY: 'tinkl_sync_credential', // localStorage key
+
+  /** A sync credential is 32 random bytes as 64 lowercase hex chars. */
+  isValidCredential(code) {
+    return typeof code === 'string' && /^[0-9a-f]{64}$/.test(code);
+  },
+
+  /**
+   * This device's sync credential, generated on first use and kept only
+   * in localStorage. It is the ONLY key to this device's cloud backup:
+   * the Worker derives the storage location from a hash of it, so the
+   * credential itself is never stored on the server.
+   */
+  getCredential() {
+    let code = localStorage.getItem(this.CREDENTIAL_KEY);
+    if (!this.isValidCredential(code)) {
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      code = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem(this.CREDENTIAL_KEY, code);
+    }
+    return code;
+  },
+
+  authHeaders() {
+    return { Authorization: `Bearer ${this.getCredential()}` };
+  },
+
+  /**
+   * Show the recovery code so the user can move their cloud backup to a
+   * new device. Anyone holding the code can read that backup — the dialog
+   * says so, in the app's own confirm style.
+   */
+  async showRecoveryCode() {
+    const code = this.getCredential();
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch { /* clipboard is a convenience, not a requirement */ }
+    await U.confirm(
+      'Cloud Backup Recovery Code',
+      `${code}\n\nThis code is the only key to your cloud backup — there is no account and no password reset. Enter it on a new device (Settings → Cloud Sync → Use a Recovery Code) to restore there.\n\nKeep it somewhere private: anyone with this code can read your cloud backup. The code has been copied to your clipboard.`,
+    );
+  },
+
+  /** Adopt a recovery code from another device as this device's key. */
+  async importRecoveryCode() {
+    const entered = window.prompt('Paste the recovery code from your other device:');
+    if (!entered) return;
+    const code = entered.trim().toLowerCase();
+    if (!this.isValidCredential(code)) {
+      U.toast('That code does not look right — it is 64 characters, using only a–f and 0–9.', 'error');
+      return;
+    }
+    localStorage.setItem(this.CREDENTIAL_KEY, code);
+    U.toast('Recovery code saved. Tap “Restore from Cloud” to pull your backup.', 'success');
+  },
 
   async init() {
     // Generate a stable device ID (stored in localStorage)
@@ -63,7 +120,7 @@ const SYNC = {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.API_SECRET}`,
+          'Authorization': `Bearer ${this.getCredential()}`,
         },
         body: JSON.stringify(backup),
       });
@@ -96,7 +153,7 @@ const SYNC = {
     try {
       const res = await fetch(`${this.WORKER_URL}/api/backup/latest`, {
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${this.API_SECRET}` },
+        headers: this.authHeaders(),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -226,7 +283,7 @@ const SYNC = {
     try {
       const res = await fetch(`${this.WORKER_URL}/api/backup/latest`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${this.API_SECRET}` },
+        headers: this.authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       U.toast('✅ Cloud backup deleted', 'success');
