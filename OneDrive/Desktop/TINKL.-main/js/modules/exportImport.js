@@ -1,0 +1,100 @@
+// Export / Import — legacy.js lines 2464-2490, plus buildVetReport moved here
+// from legacy.js lines 1763-1815 (it was defined inside the Smart Insights region).
+
+import { DB } from './db.js';
+import { S } from './state.js';
+import { U, loadAll } from './utils.js';
+import { LOG_TYPES } from './logTypes.js';
+import { render, currentView } from './navigation.js';
+import { analyzePet } from './healthRadar.js';
+
+/* ================ Export / Import ================ */
+function exportJSON() {
+  const data = { pets: S.pets, logs: S.logs, reminders: S.reminders, weights: S.weights, meds: S.meds, vaccinations: S.vaccinations, notes: S.notes, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `tinkl-backup-${Date.now()}.json`; a.click();
+  URL.revokeObjectURL(url); U.toast('Exported', 'success');
+}
+function exportCSV() {
+  const rows = [['pet', 'type', 'time', 'note']];
+  const petMap = Object.fromEntries(S.pets.map(p => [p.id, p.name]));
+  S.logs.forEach(l => rows.push([petMap[l.petId] || '', l.type, new Date(l.ts).toISOString(), (l.note || '').replace(/"/g, '""')]));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tinkl-logs-${Date.now()}.csv`; a.click();
+  U.toast('CSV downloaded', 'success');
+}
+async function importJSON(file) {
+  try {
+    const txt = await file.text(); const data = JSON.parse(txt);
+    for (const [k, arr] of Object.entries({ pets: data.pets, logs: data.logs, reminders: data.reminders, weights: data.weights, meds: data.meds, vaccinations: data.vaccinations, notes: data.notes })) {
+      if (!Array.isArray(arr)) continue;
+      for (const item of arr) await DB.put(k, item);
+    }
+    await loadAll(); render(currentView()); U.toast('Imported!', 'success');
+  } catch (e) { U.toast('Import failed', 'error'); }
+}
+
+// Builds the structured vet-ready plain text report (no AI needed)
+function buildVetReport(d) {
+  const petName = d.pet.name || 'Unknown';
+  const breed = d.pet.breed || 'Unknown';
+  const dob = d.pet.birthday ? new Date(d.pet.birthday).toLocaleDateString() : 'Unknown';
+  const weight = d.weights.length ? d.weights[d.weights.length - 1].display : 'Not recorded';
+  const rangeStr = { day: 'Daily', week: '7-Day', month: '30-Day' }[d.range];
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const meds = d.meds.map(m => `  • ${m.name}${m.dose ? ' ' + m.dose : ''}${m.schedule ? ' — ' + m.schedule : ''}`).join('\n') || '  None recorded';
+  const vaccs = d.vaccs.map(v => `  • ${v.name}${v.date ? ' (given ' + new Date(v.date).toLocaleDateString() + ')' : ''}${v.nextDue ? ' · next due ' + new Date(v.nextDue).toLocaleDateString() : ''}`).join('\n') || '  None recorded';
+  const overdueVaccs = d.overdueVaccs.length ? `\n⚠️  OVERDUE: ${d.overdueVaccs.map(v => v.name).join(', ')}` : '';
+
+  const activityLines = Object.entries(d.counts).sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => `  • ${LOG_TYPES[type]?.label || type}: ${count}x`).join('\n') || '  No activity logged';
+
+  const wTrend = d.weights.length >= 2
+    ? `  Start: ${d.weights[0].display}  →  End: ${d.weights[d.weights.length - 1].display}  (Δ ${d.wDelta > 0 ? '+' : ''}${d.wDelta} lbs)`
+    : d.weights.length === 1 ? `  ${d.weights[0].display} (single reading)` : '  No weight entries in this period';
+
+  const accidents = d.counts['accident'] || 0;
+  const accidentLine = accidents > 0 ? `\n⚠️  ${accidents} accident(s) recorded — may warrant discussion.` : '';
+
+  const noteTexts = [...d.notes.map(n => n.text || n.content || ''), ...d.logs.filter(l => l.note).map(l => l.note)].filter(Boolean);
+  const notesLine = noteTexts.length ? noteTexts.map(t => `  • ${t}`).join('\n') : '  No notes logged';
+
+  // Health Radar (differentiator): on-device anomaly flags, informational only.
+  const anomalyFlags = d.pet && d.pet.id ? analyzePet(d.pet.id, d.logs || []) : [];
+  const anomalySection = anomalyFlags.length
+    ? `\n\nANOMALY FLAGS (on-device, trailing 30 days — informational only, not a diagnosis):\n` +
+      anomalyFlags.map(f => `  [${f.severity.toUpperCase()}] ${f.title} — ${f.detail}`).join('\n')
+    : '';
+
+  return `TINKL PET HEALTH REPORT
+${rangeStr} Summary  ·  Generated ${today}
+${'─'.repeat(48)}
+
+PET PROFILE
+  Name:    ${petName}
+  Breed:   ${breed}
+  DOB:     ${dob}
+  Weight:  ${weight}
+
+ACTIVITY LOG  (${d.rangeLabel})
+${activityLines}${accidentLine}
+
+WEIGHT TREND
+${wTrend}
+
+CURRENT MEDICATIONS
+${meds}
+
+VACCINATION HISTORY${overdueVaccs}
+${vaccs}
+
+OWNER NOTES & OBSERVATIONS
+${notesLine}${anomalySection}
+${'─'.repeat(48)}
+Report generated by TINKL · tinkl.app`;
+}
+
+export { exportJSON, exportCSV, importJSON, buildVetReport };

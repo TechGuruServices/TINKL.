@@ -1,0 +1,417 @@
+
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg-0);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(60% 40% at 15% 0%, rgba(124, 140, 255, 0.18), transparent 60%),
+        radial-gradient(50% 45% at 100% 20%, rgba(168, 85, 247, 0.16), transparent 60%),
+        radial-gradient(50% 50% at 50% 100%, rgba(34, 211, 238, 0.10), transparent 60%),
+        var(--bg-0);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    body[data-theme="light"]::before {
+      background:
+        radial-gradient(60% 40% at 15% 0%, rgba(124, 140, 255, 0.20), transparent 60%),
+        radial-gradient(50% 45% at 100% 20%, rgba(236, 72, 153, 0.15), transparent 60%),
+        var(--bg-0);
+    }
+
+    @keyframes themeDrift {
+      0% {
+        background-position: 15% 0%, 100% 20%, 50% 100%, 0 0;
+      }
+
+      50% {
+        background-position: 60% 40%, 35% 70%, 10% 25%, 0 0;
+      }
+
+      100% {
+        background-position: 15% 0%, 100% 20%, 50% 100%, 0 0;
+      }
+    }
+
+    body[data-theme="aurora"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(16, 185, 129, 0.35), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(45, 212, 191, 0.30), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(59, 130, 246, 0.25), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 32s ease-in-out infinite;
+    }
+
+    body[data-theme="sunset"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(249, 115, 22, 0.32), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(244, 63, 94, 0.28), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(168, 85, 247, 0.22), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 36s ease-in-out infinite;
+    }
+
+    body[data-theme="midnight"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(99, 102, 241, 0.32), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(59, 130, 246, 0.26), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(139, 92, 246, 0.24), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 40s ease-in-out infinite;
+    }
+
+    /* ---------- Nebula: drift + twinkling star field ---------- */
+    body[data-theme="nebula"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(168, 85, 247, 0.34), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(236, 72, 153, 0.26), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(99, 102, 241, 0.28), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 38s ease-in-out infinite;
+    }
+
+    body[data-theme="nebula"]::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        radial-gradient(1.6px 1.6px at 20% 30%, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1.6px 1.6px at 70% 62%, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1.2px 1.2px at 42% 80%, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1.6px 1.6px at 90% 16%, rgba(255, 255, 255, 0.85), transparent),
+        radial-gradient(1.2px 1.2px at 11% 66%, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1.6px 1.6px at 56% 12%, rgba(255, 255, 255, 0.75), transparent),
+        radial-gradient(1.2px 1.2px at 84% 86%, rgba(255, 255, 255, 0.65), transparent),
+        radial-gradient(1.6px 1.6px at 30% 50%, rgba(255, 255, 255, 0.7), transparent);
+      background-repeat: no-repeat;
+      animation: starTwinkle 4s ease-in-out infinite;
+    }
+
+    /* ---------- Blossom: drift + gliding rose-gold shimmer ---------- */
+    body[data-theme="blossom"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(244, 63, 94, 0.30), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(251, 113, 133, 0.24), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(250, 204, 21, 0.18), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 34s ease-in-out infinite;
+    }
+
+    body[data-theme="blossom"]::after {
+      content: '';
+      position: fixed;
+      inset: -20%;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(115deg,
+          transparent 30%,
+          rgba(250, 204, 21, 0.10) 45%,
+          rgba(255, 255, 255, 0.16) 50%,
+          rgba(250, 204, 21, 0.10) 55%,
+          transparent 70%);
+      background-size: 300% 300%;
+      animation: shimmerSweep 7s ease-in-out infinite;
+    }
+
+    /* ---------- Abyss: drift + pulsing bioluminescent glow ---------- */
+    body[data-theme="abyss"]::before {
+      background:
+        radial-gradient(55% 55% at 15% 0%, rgba(6, 182, 212, 0.30), transparent 60%),
+        radial-gradient(55% 55% at 100% 20%, rgba(14, 165, 233, 0.26), transparent 60%),
+        radial-gradient(55% 55% at 50% 100%, rgba(59, 130, 246, 0.22), transparent 60%),
+        var(--bg-0);
+      background-size: 220% 220%, 220% 220%, 220% 220%, auto;
+      animation: themeDrift 44s ease-in-out infinite;
+    }
+
+    body[data-theme="abyss"]::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 25% 40%, rgba(45, 212, 191, 0.9), transparent),
+        radial-gradient(2px 2px at 65% 70%, rgba(34, 211, 238, 0.8), transparent),
+        radial-gradient(1.6px 1.6px at 45% 20%, rgba(103, 232, 249, 0.75), transparent),
+        radial-gradient(2px 2px at 85% 50%, rgba(45, 212, 191, 0.7), transparent),
+        radial-gradient(1.6px 1.6px at 15% 80%, rgba(34, 211, 238, 0.65), transparent),
+        radial-gradient(2px 2px at 55% 90%, rgba(103, 232, 249, 0.7), transparent);
+      background-repeat: no-repeat;
+      animation: glowPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes starTwinkle {
+
+      0%,
+      100% {
+        opacity: 0.4;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes shimmerSweep {
+      0% {
+        background-position: -60% -60%;
+      }
+
+      50% {
+        background-position: 160% 160%;
+      }
+
+      100% {
+        background-position: -60% -60%;
+      }
+    }
+
+    @keyframes glowPulse {
+
+      0%,
+      100% {
+        opacity: 0.35;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    }
+
+    /* Respect OS-level reduced-motion for every theme's ambient animation,
+       including the drift/twinkle/shimmer/glow layers added above — a
+       moving full-viewport background is exactly the kind of motion this
+       setting exists to suppress. */
+    @media (prefers-reduced-motion: reduce) {
+
+      body::before,
+      body[data-theme]::before,
+      body[data-theme]::after {
+        animation: none !important;
+      }
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--ink);
+      border-radius: var(--radius-xs);
+      outline: none;
+      font-size: 0.95rem;
+      transition: border-color .2s, background .2s;
+    }
+
+    body[data-theme="light"] input,
+    body[data-theme="light"] select,
+    body[data-theme="light"] textarea {
+      background: rgba(15, 18, 38, 0.03);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--brand);
+      background: rgba(124, 140, 255, 0.08);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* ============ Layout ============ */
+    .app {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      padding: calc(20px + var(--safe-top)) 16px 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+      border-right: 1px solid var(--glass-border);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      backdrop-filter: blur(24px) saturate(160%);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 40;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 8px 20px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      overflow: hidden;
+    }
+
+    .sidebar-brand-text {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--ink-3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      overflow-wrap: break-word;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--ink-2);
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .18s ease;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: var(--glass);
+      color: var(--ink);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(124, 140, 255, 0.16), rgba(168, 85, 247, 0.10));
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1px rgba(124, 140, 255, 0.28);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: -16px;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--grad-brand);
+    }
+
+    .nav-ic {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: calc(20px + var(--safe-top)) clamp(16px, 3vw, 32px) calc(120px + var(--safe-bot));
+    }
+
+    /* ============ Views ============ */
+    .view {
+      display: none;
+      animation: fade .3s ease;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }

@@ -1,0 +1,13 @@
+{
+  "name": "tinkl",
+  "version": "1.0.0",
+  "description": "TINKL — Premium Pet Potty Tracker PWA",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "dev:https": "node server.js --https"
+  },
+  "keywords": ["pwa", "pet", "tracker", "potty"],
+  "license": "UNLICENSED"
+}
