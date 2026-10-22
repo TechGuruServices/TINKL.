@@ -366,7 +366,7 @@
     const SYNC = {
       // Configuration
       WORKER_URL: 'https://tinkl-sync.techguruofficial.workers.dev',
-      API_SECRET: 'tinkl-sync-secret-123', // Must match the Cloudflare Worker secret
+      API_SECRET: 'REMOVED-legacy-shared-secret', // Must match the Cloudflare Worker secret
 
       SYNC_INTERVAL_MS: 5 * 60 * 1000, // Auto-sync every 5 minutes (optional)
       DEVICE_ID: null, // Set on app init

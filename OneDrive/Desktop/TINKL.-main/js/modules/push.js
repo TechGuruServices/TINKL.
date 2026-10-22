@@ -7,7 +7,7 @@
  *   DELETE {WORKER_URL}/api/push/subscribe          -> { endpoint }     + Bearer auth
  * The service worker (sw.js) already handles 'push' events and deep-links
  * notification taps via data.url — no SW changes needed here.
- * WORKER_URL and API_SECRET are reused from sync.js (SYNC config).
+ * WORKER_URL and the per-device sync credential are reused from sync.js (SYNC config).
  * ========================================================================== */
 
 import { SYNC } from './sync.js';
@@ -73,7 +73,7 @@ export async function subscribe() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${SYNC.API_SECRET}`,
+      Authorization: `Bearer ${SYNC.getCredential()}`,
     },
     body: JSON.stringify({ subscription: sub.toJSON() }),
   });
@@ -99,7 +99,7 @@ export async function unsubscribe() {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${SYNC.API_SECRET}`,
+        Authorization: `Bearer ${SYNC.getCredential()}`,
       },
       body: JSON.stringify({ endpoint }),
     });

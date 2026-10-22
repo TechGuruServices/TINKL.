@@ -23,7 +23,7 @@ No other agents touch this project.
 - PNG icons were NOT pushed (binaries excluded); the holographic-paw brand
   swap is still pending — manifest still references paw3 icon paths.
 - **Known issue carried over:** `js/modules/sync.js` still hardcodes the
-  backup API secret (`tinkl-sync-secret-123`) — must be fixed before any
+  backup API secret (`REMOVED-legacy-shared-secret`) — must be fixed before any
   clinic data touches this (see audit 2026-10-18).
 
 ## Agent roster

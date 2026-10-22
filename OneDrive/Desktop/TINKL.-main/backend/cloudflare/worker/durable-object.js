@@ -1,8 +1,17 @@
 // worker/durable-object.js — TinklBackup Durable Object
 // Stores (a) the latest backup snapshot and (b) Web Push subscriptions.
 // Cloudflare Durable Objects = strongly consistent, low-latency per-user storage.
+//
+// Instances: the Worker creates one instance per user (named from a hash of
+// the user's on-device sync credential) for /backup/* data, plus one shared
+// 'push-registry' instance for /push/* subscription data (endpoints + keys
+// only, no pet data). The Worker authenticates BEFORE forwarding, so every
+// route below runs only for a validated caller.
 
 const MAX_SUBSCRIPTIONS = 50;
+// Upper bound for one backup snapshot. Generous for pet data + settings;
+// stops a malformed or hostile client from filling storage unboundedly.
+const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
 
 export class TinklBackup {
   constructor(state, env) {
@@ -28,16 +37,32 @@ export class TinklBackup {
     // body: { ts, device, dataVersion, data: { pets, logs, ... } }
     if (path === '/backup/latest' && method === 'PUT') {
       try {
+        const declared = Number(req.headers.get('content-length') || 0);
+        if (declared > MAX_BACKUP_BYTES) {
+          return json({ error: 'backup too large' }, 413);
+        }
         const body = await req.json();
+        if (JSON.stringify(body).length > MAX_BACKUP_BYTES) {
+          return json({ error: 'backup too large' }, 413);
+        }
+        if (
+          !body ||
+          typeof body.data !== 'object' ||
+          body.data === null ||
+          Array.isArray(body.data)
+        ) {
+          return json({ error: 'invalid backup payload' }, 400);
+        }
+        const device = String(body.device || 'unknown').slice(0, 80);
         await this.storage.put('backup:latest', {
           ts: body.ts || Date.now(),
-          device: body.device || 'unknown',
+          device,
           dataVersion: body.dataVersion || 1,
-          data: body.data || {},
+          data: body.data,
         });
         await this.storage.put('backup:meta', {
           lastBackupTime: Date.now(),
-          lastBackupDevice: body.device || 'unknown',
+          lastBackupDevice: device,
           backupCount: (await this.getMetadataCount()) + 1,
         });
         return json({ ok: true, ts: body.ts || Date.now() });
@@ -79,8 +104,10 @@ export class TinklBackup {
     }
 
     /* ---------------------- push subscriptions ------------------------- */
-    // NOTE: the Worker checks Authorization BEFORE forwarding here, so every
-    // route below is already authed (except none — all push routes need it).
+    // NOTE: these routes only ever run on the Worker's 'push-registry'
+    // instance, and the Worker checks Authorization BEFORE forwarding here
+    // (a valid per-device credential for subscribe/unsubscribe, the
+    // operator ADMIN_TOKEN for the fan-out reads in /api/push/send).
 
     // POST /push/subscribe — body: { subscription: { endpoint, keys: { p256dh, auth } } }
     if (path === '/push/subscribe' && method === 'POST') {

@@ -414,12 +414,14 @@
           <div class="section-title mb-4">☁️ Cloud Sync</div>
           <div class="text-mut fs-09 mb-4">
             Sync your local data to the cloud so you can access it on another device.
-            <br><i>Note: Uses your unique device ID. No login required.</i>
+            <br><i>Note: No login required. Your backup is protected by a private key generated on this device — keep your recovery code safe, it is the only way in.</i>
           </div>
           <div class="sync-actions">
             <button class="btn btn-secondary" id="syncPushBtn">📤 Back Up to Cloud</button>
             <button class="btn btn-secondary" id="syncPullBtn">📥 Restore from Cloud</button>
             <button class="btn btn-danger" id="syncDelBtn">🗑 Delete Cloud Backup</button>
+            <button class="btn btn-secondary" id="syncRecoveryBtn">🔑 Recovery Code</button>
+            <button class="btn btn-secondary" id="syncImportBtn">📥 Use a Recovery Code</button>
           </div>
           <div class="text-mut" style="font-size:0.8rem;margin-top:8px">
             Last synced: <span id="syncStatus">never</span>
