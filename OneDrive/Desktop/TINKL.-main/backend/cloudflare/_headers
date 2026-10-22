@@ -1,0 +1,67 @@
+# TINKL. — Cloudflare Pages headers (modular PWA layout)
+# Production cache policy: the service worker versions the app shell via
+# CACHE_VERSION, so HTTP caches stay short except for content-stable icons.
+
+# --- Service worker: MUST revalidate on every load ---
+# Any max-age caching here silently freezes users on stale app code.
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+# --- HTML entry points: never cache, always fresh ---
+# (The SW keeps its own cached copy; the network copy must be one refresh away.)
+/index.html
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.workers.dev;
+/offline.html
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+/vetpass.html
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+
+# --- Root (serves index.html): never cache ---
+/
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.workers.dev;
+
+# --- Web app manifest: correct MIME + short cache ---
+/manifest.json
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=3600
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+# --- CSS/JS: 1-day cache (SW does stale-while-revalidate on top) ---
+/css/*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+/js/*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+# --- Icons & media: immutable for a year (renamed when changed) ---
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+# NOTE: no Content-Security-Policy is set here on purpose — offline.html
+# relies on inline <style>/<script> (it must work with zero network).
+# Add a CSP only after auditing every inline block, or scope it per-path.
