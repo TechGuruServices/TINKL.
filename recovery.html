@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="referrer" content="no-referrer" />
+<title>Sign in — TINKL.</title>
+<meta name="description" content="Use a TINKL. sign-in link." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="/css/legal.css" />
+</head>
+<body>
+<!-- Recovery page: the link token lives ONLY in the URL fragment (#t=...),
+     which browsers never send to servers, so it cannot land in server or
+     CDN logs. The page reads the fragment and POSTs the token in the body. -->
+<main>
+  <a class="brand" href="/">TINKL.</a>
+  <h1>Sign in with your link</h1>
+  <div id="app"><p class="mut">Loading…</p></div>
+</main>
+<script src="/js/config.js"></script>
+<script type="module" src="/js/recovery.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Cloudflare Pages headers. `npm run build` substitutes https://tinkl-sync.techguruofficial.workers.dev (from TINKL_WORKER_URL)
+# and writes dist/_headers. The dev server (npm run dev) applies the same rules.
+#
+# CSP notes: script-src 'self' — no inline or third-party script anywhere in the app.
+# style-src keeps 'unsafe-inline' because views render style="" attributes; CSS cannot execute code.
+# connect-src allows only this site and the API Worker.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://tinkl-sync.techguruofficial.workers.dev; manifest-src 'self'; worker-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+/manifest.json
+  Cache-Control: no-cache
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/icons/*
+  Cache-Control: public, max-age=604800
+
+# The Vet Pass fragment (#d=...) is never sent to servers; also keep the page out of search and referrers.
+/vetpass.html
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex, nofollow
+
+# The clinic reply page (#r=...) carries its decryption key in the fragment; same treatment.
+/clinic.html
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache
+
+# The recovery page (#t=...) carries its token in the fragment; same treatment.
+/recovery.html
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache

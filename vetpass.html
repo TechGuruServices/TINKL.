@@ -4,171 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
 <title>Vet Pass — Read-only Health Report</title>
-<style>
-  :root { --ink: #1a1d2e; --mut: #6b7280; --line: #e5e7eb; --bg: #f8fafc; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-  .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .brand b { letter-spacing: 2px; font-size: 1.1rem; }
-  .brand span { color: var(--mut); font-size: .8rem; }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
-  .card h2 { margin: 0 0 12px; font-size: 1rem; }
-  .pet-name { font-size: 1.6rem; margin: 0; }
-  .pet-sub { color: var(--mut); margin: 4px 0 0; text-transform: capitalize; }
-  .flag { border-left: 4px solid #9ca3af; padding: 10px 12px; border-radius: 8px; background: #f9fafb; margin-bottom: 10px; }
-  .flag.warn { border-color: #f59e0b; } .flag.urgent { border-color: #ef4444; } .flag.info { border-color: #3b82f6; }
-  .flag .sev { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-  .flag.warn .sev { color: #b45309; } .flag.urgent .sev { color: #b91c1c; } .flag.info .sev { color: #1d4ed8; }
-  .flag .t { font-weight: 700; margin: 2px 0; }
-  .flag .d { color: var(--mut); font-size: .85rem; margin: 0; }
-  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
-  th { color: var(--mut); font-weight: 600; font-size: .75rem; text-transform: uppercase; }
-  pre.report { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .82rem; color: #374151; margin: 0; font-family: ui-monospace, monospace; }
-  .med-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
-  .med-row:last-child { border-bottom: 0; }
-  .mut { color: var(--mut); font-size: .85rem; }
-  .print-btn { position: fixed; right: 18px; bottom: 18px; border: 0; border-radius: 999px; padding: 14px 22px; font-size: 1rem; font-weight: 700; background: #111827; color: #fff; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-  .err { text-align: center; padding: 64px 20px; }
-  .err h1 { font-size: 1.3rem; }
-  .err p { color: var(--mut); }
-  @media print { .print-btn { display: none; } body { background: #fff; } .wrap { padding: 0; } }
-</style>
+<link rel="stylesheet" href="/css/vetpass.css" />
 </head>
 <body>
 <div class="wrap" id="app"><p class="mut">Loading report…</p></div>
-<button class="print-btn" id="printBtn" style="display:none" onclick="window.print()">🖨 Print</button>
+<button class="print-btn" id="printBtn" type="button" hidden>🖨 Print</button>
 
-<!-- Classic script: relative to the deployed location per integration spec. -->
-<script src="../js/vendor/lz-string.min.js"></script>
-<script>
-(function () {
-  "use strict";
-  var app = document.getElementById('app');
-
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-  function fmtDate(ts) {
-    return new Date(ts).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
-  }
-  function fmtDateTime(ts) {
-    return new Date(ts).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-  }
-  function toKg(v, u) {
-    var n = parseFloat(v);
-    if (!isFinite(n)) return null;
-    return u === 'lbs' ? n / 2.20462 : n;
-  }
-
-  function showError(title, msg) {
-    app.innerHTML = '<div class="err"><h1>' + esc(title) + '</h1><p>' + esc(msg) + '</p></div>';
-  }
-
-  function render(p) {
-    var pet = p.pet || {};
-    var html = '';
-
-    // ---- Pet header ----
-    html += '<div class="brand"><b>TINKL.</b><span>VET PASS · read-only</span></div>';
-    html += '<div class="card"><p class="pet-name">' + esc(pet.name || 'Unknown pet') + '</p>' +
-      '<p class="pet-sub">' + esc([pet.species, pet.breed].filter(Boolean).join(' · ') || '—') + '</p>' +
-      '<p class="mut" style="margin:8px 0 0">Report generated ' + esc(fmtDateTime(p.gen)) + '</p></div>';
-
-    // ---- Health radar flags ----
-    html += '<div class="card"><h2>Health Radar Flags</h2>';
-    if (p.flags && p.flags.length) {
-      html += p.flags.map(function (f) {
-        return '<div class="flag ' + esc(f.severity) + '"><div class="sev">' + esc(f.severity) + '</div>' +
-          '<div class="t">' + esc(f.title) + '</div><p class="d">' + esc(f.detail) + '</p></div>';
-      }).join('');
-    } else {
-      html += '<p class="mut">No anomalies detected in the trailing window.</p>';
-    }
-    html += '</div>';
-
-    // ---- Medications ----
-    html += '<div class="card"><h2>Medications</h2>';
-    if (p.meds && p.meds.length) {
-      html += p.meds.map(function (m) {
-        return '<div class="med-row"><span><strong>' + esc(m.name) + '</strong>' +
-          (m.dose ? ' · ' + esc(m.dose) : '') + '</span><span class="mut">' + esc(m.schedule || '') + '</span></div>';
-      }).join('');
-    } else {
-      html += '<p class="mut">No medications attached — see the full report below.</p>';
-    }
-    html += '</div>';
-
-    // ---- Weight table ----
-    html += '<div class="card"><h2>Weight History</h2>';
-    if (p.weights && p.weights.length) {
-      html += '<table><thead><tr><th>Date</th><th>Weight</th><th>kg</th></tr></thead><tbody>' +
-        p.weights.map(function (w) {
-          var kg = toKg(w.v, w.u);
-          return '<tr><td>' + esc(fmtDate(w.ts)) + '</td><td>' + esc(w.v) + ' ' + esc(w.u || '') + '</td>' +
-            '<td>' + (kg == null ? '—' : kg.toFixed(1)) + '</td></tr>';
-        }).join('') + '</tbody></table>';
-    } else {
-      html += '<p class="mut">No weight entries attached — see the full report below.</p>';
-    }
-    html += '</div>';
-
-    // ---- Recent activity summary (from trimmed logs) ----
-    if (p.logs && p.logs.length) {
-      var counts = {};
-      p.logs.forEach(function (l) { counts[l.t] = (counts[l.t] || 0) + 1; });
-      html += '<div class="card"><h2>Activity — last 30 days (' + p.logs.length + ' events)</h2><p class="mut">' +
-        Object.keys(counts).sort().map(function (t) { return esc(t) + ': ' + counts[t]; }).join(' · ') +
-        '</p></div>';
-    }
-
-    // ---- Full vet report text ----
-    html += '<div class="card"><h2>Vet Report</h2><pre class="report">' + esc(p.report || 'No report text included.') + '</pre></div>';
-
-    app.innerHTML = html;
-    document.getElementById('printBtn').style.display = '';
-  }
-
-  function boot() {
-    var LZ = window.LZString;
-    if (!LZ || typeof LZ.decompressFromEncodedURIComponent !== 'function') {
-      showError('Report library failed to load', 'The compression library could not be loaded. Check your connection and try again.');
-      return;
-    }
-    var d = null;
-    try { d = new URLSearchParams(window.location.search).get('d'); } catch (e) { d = null; }
-    if (!d) {
-      showError('No report found', 'This link is missing its report data (?d=…). Ask the pet owner to generate a fresh Vet Pass link.');
-      return;
-    }
-    var payload = null;
-    try {
-      var json = LZ.decompressFromEncodedURIComponent(d);
-      payload = json ? JSON.parse(json) : null;
-    } catch (e) { payload = null; }
-    if (!payload || !payload.pet) {
-      showError('This link is invalid', 'The report data could not be decoded — the link may be truncated or expired. Ask the pet owner to generate a fresh Vet Pass link.');
-      return;
-    }
-    render(payload);
-  }
-
-  // Fallback: if the ../js/vendor path 404s (e.g. page served from the
-  // project root), try the root-relative path before giving up.
-  if (typeof window.LZString === 'undefined') {
-    var s = document.createElement('script');
-    s.src = 'js/vendor/lz-string.min.js';
-    s.onload = boot;
-    s.onerror = function () { showError('Report library failed to load', 'The compression library could not be loaded. Check your connection and try again.'); };
-    document.head.appendChild(s);
-  } else {
-    boot();
-  }
-})();
-</script>
+<!-- Classic scripts (external only: the site CSP forbids inline script). -->
+<script src="/js/vendor/lz-string.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/vetpass.js"></script>
 </body>
 </html>

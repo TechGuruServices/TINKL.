@@ -1,1 +1,82 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0d16"><meta name="description" content="TINKL. privacy policy — how your pet care data is stored, synced, and protected."><title>TINKL. — Privacy Policy</title><style>:root{--bg:#05060b;--card:#0b0d16;--ink:#f4f5fb;--ink2:#b9bcd0;--acc:#8b5cf6;--line:rgba(255,255,255,.09)}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,sans-serif;line-height:1.65;padding:24px 16px 64px;-webkit-font-smoothing:antialiased}main{max-width:680px;margin:0 auto}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;margin-bottom:16px}h1{font-size:26px;letter-spacing:.01em;margin-bottom:6px}h2{font-size:17px;margin:0 0 8px;color:var(--acc)}li,p{font-size:15px;color:var(--ink2)}p{margin-bottom:10px}ul{padding-left:20px;margin-bottom:10px}li{margin-bottom:6px}.meta{font-size:13px;opacity:.7;margin-bottom:18px}a{color:var(--acc)}.back{display:inline-block;margin-bottom:18px;font-size:14px;text-decoration:none}code{font-size:13px;background:rgba(255,255,255,.06);padding:1px 6px;border-radius:6px;color:var(--ink)}</style></head><body><main><a class="back" href="/">&larr; Back to TINKL.</a><div class="card"><h1>Privacy Policy</h1><p class="meta">Last updated October 22, 2026 · TINKL. — Every Potty. Perfectly Tracked.</p><p>TINKL. is an offline-first pet care journal. It works without an account, serves no ads, and never sells your data. This policy explains what is stored, what is synced, and the controls you have.</p></div><div class="card"><h2>1. Data stored on your device</h2><p>Everything you enter — pet profiles, potty/activity logs, medications, weights, vaccinations, notes, reminders, and app settings — is stored locally on your device in its built-in database (IndexedDB / localStorage). It never leaves your device unless you turn on Cloud Backup.</p></div><div class="card"><h2>2. Cloud Backup (opt-in)</h2><p>Cloud Backup is <strong>off by default</strong>. If you enable it in Settings, the app uploads an encrypted-in-transit snapshot of your local data to our sync service at <code>tinkl-sync.techguruofficial.workers.dev</code>, where it is stored on Cloudflare's infrastructure (Durable Objects). Cloudflare may store this data in a region outside your own. The snapshot is protected by a random sync credential generated on your device. Our server stores your snapshot in an isolated location derived from a one-way hash of that credential — the credential itself is never sent to be stored, and there is no account, name, or email attached to your backup. Your recovery code (Settings → Cloud Sync → Recovery Code) is the only way to reach your backup from another device; we cannot reset it for you, and anyone who has the code can read the backup, so treat it like a password.</p><ul><li><strong>Back up:</strong> Settings &rarr; Cloud Sync &rarr; Back Up to Cloud</li><li><strong>Restore:</strong> Settings &rarr; Cloud Sync &rarr; Restore from Cloud</li><li><strong>Delete:</strong> Settings &rarr; Cloud Sync &rarr; Delete Cloud Backup — permanently removes your snapshot from our servers</li></ul></div><div class="card"><h2>3. Push notifications (opt-in)</h2><p>If you enable push notifications in Settings, your device's push subscription (endpoint and encryption keys, no pet data) is stored in our push registry so reminders can reach you even when the app is closed. Disabling notifications removes the subscription.</p></div><div class="card"><h2>4. Vet Pass sharing</h2><p>Vet Pass reports are encoded directly into the share link itself and decoded on the recipient's device. Report contents are never uploaded to our servers as part of sharing.</p></div><div class="card"><h2>5. What we don't do</h2><ul><li>No accounts, no sign-in, no email collection.</li><li>No advertising and no ad trackers.</li><li>We do not sell, rent, or share your data with third parties for marketing.</li><li>Diagnostic data is limited to what your device and our infrastructure providers log automatically (e.g. standard request logs).</li></ul></div><div class="card"><h2>6. Children</h2><p>TINKL. is intended for pet owners. We do not knowingly collect personal information from children.</p></div><div class="card"><h2>7. Changes to this policy</h2><p>If this policy changes materially, the updated version will be posted at this address with a new effective date.</p></div><div class="card"><h2>8. Contact</h2><p>Questions about privacy or requests regarding your data: <a href="mailto:info@techguruofficial.us">info@techguruofficial.us</a>.</p></div></main></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="referrer" content="no-referrer" />
+<title>Privacy Policy — TINKL.</title>
+<meta name="description" content="How TINKL. handles your data." />
+<link rel="stylesheet" href="/css/legal.css" />
+</head>
+<body>
+<!-- LEGAL TEMPLATE: written to match what the app actually does. Drafted by the operator
+     (Lucas Thompson) from the code on 2026-10-24, updated 2026-10-25 for passkeys and
+     account recovery; NOT reviewed by a lawyer. Keep it in sync with the code when
+     features change. Double-brace placeholders are filled from legal.config.json by
+     `npm run build`. -->
+<main>
+  <a class="brand" href="/">TINKL.</a>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Version 2026-10-25 · Operated by Lucas Thompson · Contact: <a href="mailto:info@techguruofficial.us">info@techguruofficial.us</a></p>
+
+  <p>TINKL. is a pet-care tracker. It is designed to work offline and to keep your data on your own device by default. This policy explains what is collected when you use optional features such as an account and cloud backup.</p>
+
+  <h2>1. What stays on your device</h2>
+  <p>Your pets, logs, reminders, medications, vaccinations, weights, notes, photos and settings are stored in your browser or app storage on your device. If you never create an account, none of this is sent to us.</p>
+
+  <h2>2. What we collect when you use online features</h2>
+  <table>
+    <tr><th>Data</th><th>Why</th><th>When</th></tr>
+    <tr><td>Email address, optional name</td><td>Create and secure your account; sign you in</td><td>When you create an account</td></tr>
+    <tr><td>Password</td><td>Authentication. It is never stored in readable form — only a salted, peppered hash</td><td>When you create an account</td></tr>
+    <tr><td>Terms acceptance (version and time)</td><td>Record that you agreed to the Terms and this policy</td><td>When you create an account</td></tr>
+    <tr><td>Cloud backup (a snapshot of your pet data, which can include names, breeds, photos, weights, medications, vaccinations, notes, app settings, your Care Team providers' contact details — name, phone, email and address — your appointments, and your Pet Care entries such as vet practice details, symptoms and visit-prep notes, and food and treat reorder items)</td><td>Let you restore your data on another device</td><td>Only when you tap “Back up” (or auto-backup runs while signed in)</td></tr>
+    <tr><td>Push-notification subscription (endpoint and keys issued by your browser’s push service)</td><td>Deliver reminders when the app is closed</td><td>Only if you turn push notifications on</td></tr>
+    <tr><td>IP address</td><td>Abuse and rate-limit protection. Used transiently; we do not build profiles from it</td><td>When you call the API</td></tr>
+    <tr><td>Passkey public keys (and a counter)</td><td>Let you sign in with your face or fingerprint. Only the public key is stored — your private key and biometric never leave your device</td><td>When you add a passkey in Settings → Account</td></tr>
+    <tr><td>Recovery-link records (a hash of the token, not the token)</td><td>Let you sign back in if you lose your password. The link itself is emailed to you and works once, for 15 minutes</td><td>When you ask for a sign-in link</td></tr>
+  </table>
+  <p>We do <strong>not</strong> use advertising, analytics or tracking scripts, and we do not sell your data. All fonts and libraries are served from our own site; the app makes no requests to third-party trackers.</p>
+
+  <h2>3. Where data is processed</h2>
+  <p>Our website and API run on Cloudflare (Pages, Workers and Durable Objects). Cloudflare may process and store data in the countries where it operates. Cloudflare also processes standard request metadata (such as IP address) as our infrastructure provider.</p>
+
+  <h2>4. Vet Pass links</h2>
+  <p>A Vet Pass is a read-only health summary you choose to share. There are two kinds of link, and they work differently:</p>
+  <p><strong>Private link (works without an account).</strong> The report is encoded inside the link itself (in the part after “#”, which browsers do not send to servers) and is <strong>not stored by us</strong>. Anyone who has the link can read the report, and the link <strong>does not expire</strong> — share it only with people you trust, and treat the link like the report itself.</p>
+  <p><strong>Secure link (signed in only).</strong> The report is encrypted in your browser before it leaves your device, and only the encrypted version is stored by us. The decryption key stays in the part of the link after “#” and is never sent to us, so <strong>we cannot read the report</strong>. A secure link <strong>expires</strong> after 24 hours, 7 days or 30 days (you choose when you create it), and you can <strong>revoke it at any time</strong> under Providers → Shared links — a revoked link stops working immediately. Until it expires or is revoked, anyone who has the link can read the report, so share it only with people you trust.</p>
+  <p><strong>Clinic request links</strong> work like secure links: the request is encrypted in your browser and decrypted in the clinic's browser. The clinic needs no account. A clinic's reply — whether it confirmed, proposed another time or declined, the time it proposed or confirmed, its message and the name of the person replying — <strong>is stored by us in plain text</strong> so it can be shown to you in your Appointments tracker. We also store a <strong>view count and last-viewed time</strong> for each secure and request link, shown to you in Shared links. We store only a generic label for each link; any friendly names you see for your links are kept on your own device and are erased when you sign out.</p>
+
+  <h2>5. How long we keep data</h2>
+  <p>We keep your account and cloud backup until you delete them. In the app, <em>Settings → Account → Delete account</em> permanently removes your account, cloud backup and push subscriptions from active storage immediately. Residual copies may persist briefly in our infrastructure provider’s systems according to its own retention practices. Data on your own devices is not affected; you can erase it with <em>Settings → Reset all data</em>.</p>
+  <p>Secure and request link content is deleted when the link expires or is revoked. A metadata-only record of an expired link is kept for 7 days, and finished links stay listed in your Shared links for 30 days past expiry (metadata only — no report content). Deleting your account revokes all of your links first, so their stored content is deleted with the account.</p>
+
+  <h2>6. Your choices and rights</h2>
+  <ul>
+    <li><strong>Access / portability:</strong> <em>Settings → Account → Download my data</em> gives you a machine-readable copy of your account and cloud backup. <em>Settings → Export</em> exports your on-device data.</li>
+    <li><strong>Deletion:</strong> delete your cloud backup or your whole account in the app at any time.</li>
+    <li><strong>Correction:</strong> edit your data in the app and back up again.</li>
+    <li><strong>Other requests:</strong> if you are in the EEA/UK or California, you may have additional rights (access, rectification, erasure, restriction, objection, and to complain to a regulator). Contact <a href="mailto:info@techguruofficial.us">info@techguruofficial.us</a>.</li>
+  </ul>
+
+  <h2>7. Security</h2>
+  <p>Connections use HTTPS. Passwords are hashed with a salted, peppered key-derivation function. Each account’s data is stored separately and only accessible with that account’s session. Sessions can be revoked (“Sign out everywhere”). No system is perfectly secure; please use a strong, unique password.</p>
+
+  <h2>8. Children</h2>
+  <p>TINKL. is not directed to children under 13 (or under 16 in the EEA/UK), and we do not knowingly collect their personal information. If you believe a child has created an account, contact us and we will delete it.</p>
+
+  <h2>9. Veterinary clinics</h2>
+  <p>If a clinic reads a Vet Pass or answers a request link with a client’s permission, the clinic is responsible for its own handling of that data under its own policies once it has read it. Pet health information in TINKL. is entered by owners and is not a veterinary medical record. A clinic's reply to a request link is stored by us as described in section 4 so the owner can see it.</p>
+
+  <h2>10. Passkeys and account recovery</h2>
+  <p>A <strong>passkey</strong> lets you sign in with your device's face recognition, fingerprint or PIN instead of a password. When you add one, your device creates a private key that <strong>never leaves the device</strong> and a public key that we store. Your biometric data is never sent to us or stored by us. You can remove a passkey in Settings → Account at any time; removing it here removes it from your account (also remove it in your device's password settings if you want it gone there too). A passkey created on tinkl.techguruofficial.us does not work on other domains, and vice versa.</p>
+  <p>A <strong>magic sign-in link</strong> is an alternative way back in if you forget your password. You ask for one from the sign-in screen; we email a single link to the address on your account. The link works <strong>once</strong> and <strong>expires after 15 minutes</strong>. It is delivered in the part of the link after “#”, which browsers do not send to servers, and we store only a hash of it — never the link itself. Using it signs you in and <strong>signs out all other devices</strong>; you can set a new password in the same step. If email sending is not configured, the app tells you so plainly instead of pretending a link was sent.</p>
+  <p>Password changes require your current password, except when you arrive through a valid sign-in link, which itself proves you control the email address.</p>
+
+  <h2>11. Changes</h2>
+  <p>If we change this policy in a meaningful way we will update the version above and ask you to accept the new version where required.</p>
+
+  <nav class="legal-nav"><a href="/terms.html">Terms of Service</a> · <a href="/">Back to TINKL.</a></nav>
+</main>
+</body>
+</html>
