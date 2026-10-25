@@ -169,3 +169,84 @@ still live, because of the Git caveat below.
   egress proxy refuses its CONNECT while curl succeeds — so console
   verification via the user's browser was used instead; report its
   result separately, do not assume it passed).
+
+---
+## HANDOFF: 2026-10-25 ~12:00 MDT — GitHub text push to main (this agent, for the other agent)
+
+What changed: Lucas approved "push text files now, I'll upload binaries".
+Safeguard first: Pages Git deployments temporarily DISABLED via Cloudflare
+API (deployments_enabled + production_deployments_enabled = false,
+verified by re-read) so the text-only push could NOT trigger a degraded
+live deploy. Then pushed 74 text files (1.4.1 dist text + HANDOFF.md)
+from staging ~/workspace/tinkl-1.4.1-push-staging to
+TechGuruServices/TINKL. main — commit e87d50892ef858f10f5d05bb30b63e8fce5b7cac
+(head verified after push; root now has index.html, sw.js, _headers,
+HANDOFF.md; OneDrive/ untouched; privacy.html + vetpass.html overwritten
+with 1.4.1 versions). Live UNCHANGED and verified: still ad_hoc
+deployment 6f41e2a3, homepage byte-identical to dist, both domains 200.
+STILL PENDING (Lucas's turn): upload the 16 binary files (icons, favicon,
+hero PNG, Inter woff2 — list in
+~/workspace/your_files/tinkl-github-push-plan-2026-10-25.md) to repo main
+via GitHub web. After that, re-enable Git deployments and verify the Git
+deployment serves complete 1.4.1 — do NOT re-enable before the binaries
+land, or live will serve 1.4.1 with broken images/icons/font.
+Note: the HANDOFF.md pushed in this commit predates this entry; this
+entry lives in the local tree log only until the next push.
+
+---
+## HANDOFF: 2026-10-25 ~14:40 MDT — Binaries verified, Git re-enable BLOCKED (this agent, for the other agent)
+
+What changed: Lucas confirmed binaries uploaded ("done"). Verified via
+GitHub API: new commit ad7401421a968447d6ebc5f41f0156e8d35c79ea ("Add
+files via upload") and ALL 16 binaries present at the correct repo-root
+paths with exact expected sizes (0 missing, 0 size mismatches).
+Repo main is now COMPLETE 1.4.1 (text + binaries).
+
+Re-enable attempt FAILED: Cloudflare API PATCH to set
+deployments_enabled + production_deployments_enabled back to true
+returned HTTP 400, error 8000069: "You cannot update the `source`
+object in a Direct Uploads project." The project GET response no
+longer contains a `source` object at all. Cause of the project-type
+change is NOT established from API evidence: it may relate to the
+11:58 MDT disable PATCH, or Cloudflare may have reclassified the
+project separately — do not assert either without new evidence.
+Live is UNAFFECTED: still ad_hoc deployment 6f41e2a3, homepage
+byte-identical to dist, binaries serving 200.
+Consequence: Git pushes to main will NOT auto-deploy (and also can
+NOT overwrite live anymore). Future updates deploy via wrangler
+direct upload, as 1.4.1 did. Restoring Git auto-deploy requires
+reconnecting Git integration in the Cloudflare dashboard (Pages
+project tinkl settings) — an API token cannot do it — and is safe to
+do NOW only because repo main is complete; do not reconnect while
+repo content is ever incomplete, or the next push will deploy the
+incomplete state. Decision pending Lucas: keep Direct Uploads
+(recommended stable state) or reconnect Git in dashboard.
+
+---
+## HANDOFF: 2026-10-25 ~14:51 MDT — Git deployment LIVE (this agent, for the other agent)
+
+What changed: Lucas pasted Cloudflare dashboard details for deployment
+7b477519-b87d-4eb1-9288-c3b1d20edbe1 (2:50 PM MDT, 13s, success).
+API-verified, not just taken from the paste: deployment 7b477519 is
+production, trigger recorded as ad_hoc with Git metadata (branch main,
+commit ad7401421a968447d6ebc5f41f0156e8d35c79ea, "Add files via
+upload"), stages queued/initialize/clone_repo/build/deploy all
+success, alias https://tinkl.techguruofficial.us. Project GET now
+shows source present again with deployments_enabled +
+production_deployments_enabled = True — Git integration is back on
+by whatever dashboard step Lucas took; the API-side re-enable
+attempts (8000069 Direct Uploads error) are superseded by this state.
+Live verified: canonical + pages.dev homepages byte-identical to
+dist/index.html (md5 e2fdeec290a56dbacb41382708158cdf), stable 200s,
+manifest/sw/recovery/clinic/vetpass 200, all spot-checked binaries
+200 (favicon, maskable icons, logo, hero, Inter woff2, android/apple
+icons), SW cache tinkl-fe282f51c1, CSP + nosniff present, Worker
+recovery still honestly {ok:true, emailConfigured:false}.
+Notes: Git deployment published 186 files (repo total, including the
+OneDrive/ dump as static assets — same as prior Git deployments;
+cleanup of OneDrive/ is a separate Lucas decision, do NOT delete
+unilaterally). Direct fetch of https://7b477519.tinkl.pages.dev/ from
+this VM returned 000 (egress quirk, as with headless Chromium) — NOT
+a deployment failure: API + canonical alias + byte-identical content
+establish that 7b477519 serves production. Future pushes to main
+will auto-deploy again; keep repo content complete before pushing.
