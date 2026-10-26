@@ -1,8 +1,10 @@
 # HANDOFF — TINKL (for the other Muse agent)
 
-## Current state snapshot (2026-10-23, TECHGURU-MUSE)
-- Live site is STILL the Oct 21 build at https://tinkl.techguruofficial.us — nothing in this tree is deployed. Do not deploy without Lucas's explicit go-ahead.
-- This tree is v1.2.1, derived from Lucas's tinkl-1_2_0.zip with the P0 fix batch he approved in the TINKL side chat on 2026-10-23. It supersedes the 1.2.0 zip; the production-readiness.pdf describes a third, separate local tree — do not confuse them.
+## Current state snapshot (2026-10-26 ~03:40 MDT, TECHGURU-MUSE)
+- LIVE: https://tinkl.techguruofficial.us serves v1.4.1 build 48a2a5155e (nav redesign, commit 7f110e6, Pages 45fd003c). That is the current production build, unchanged.
+- PENDING (built, verified, NOT deployed — awaiting Lucas's deploy tap): Lucas-provided branded splash + first-run intro + Honey hero + Settings refinement + Apple startup images + high-res loader paw + sharper Honey hero, build 5b42a721a7 in this tree's dist (production Worker URL; see caution below). Deploy = push 6 changed dist text files + this HANDOFF.md via connector, and upload 17 binaries via GitHub web (assets/honey-hero.jpg, assets/tinkl-splash-paw.png, 15 splash/startup-*.png). Staging dir ~/workspace/tinkl-branded-splash-staging/ holds the 6 text files + this HANDOFF.md (refreshed 03:36 MDT). Do not deploy without Lucas's explicit go-ahead.
+- CAUTION: e2e run5 finished 30/31 (one clinic-link assertion flaked — server response contained "Sam"; clinic suite rerun alone 9/9 PASS, and run4 was 31/31, so this reads as a run-order flake, not a regression from the image-only change, which cannot affect server responses; exact mechanism not proven from the log). Dist rebuilt with production Worker URL after the reruns (BUILD_ID 5b42a721a7, deterministic) and staging verified byte-identical to production dist. STAGING holds production files. Always re-verify staging == production dist before pushing.
+- Still open (unchanged): live console check (awaiting Lucas's DevTools pass), OneDrive/ deletion (PAUSED by Lucas), iOS Chrome "not secure" (PAUSED by Lucas), MailChannels DNS + DKIM (pending Lucas).
 
 ## HANDOFF: 2026-10-23 ~23:20 MDT (2026-10-24T05:20Z) — TECHGURU-MUSE — P0 fixes applied to the 1.2.0 tree
 What changed and why (full review: ~/workspace/your_files/tinkl-1-2-0-review-2026-10-23.md):
@@ -250,3 +252,170 @@ this VM returned 000 (egress quirk, as with headless Chromium) — NOT
 a deployment failure: API + canonical alias + byte-identical content
 establish that 7b477519 serves production. Future pushes to main
 will auto-deploy again; keep repo content complete before pushing.
+
+---
+## HANDOFF: 2026-10-25 ~15:03 MDT — Repo cleanup audit + HANDOFF update (this agent, for the other agent)
+
+Audit (git clone of main, blob-SHA compare, no API): repo HEAD at audit
+time was ad74014. ALL 89 dist files present with EXACT blob-SHA match
+— zero missing, zero stale. Only non-dist site file was HANDOFF.md,
+behind the tree version. OneDrive/ = 97 files (~4.1 MB) including two
+old index.html + two old sw.js (nested copies under
+OneDrive/Desktop/TINKL.-main/); those old files are served as static
+assets by Git deployments. Deletion of OneDrive/ was NOT done: the
+GitHub connector cannot delete (snapshot push is add/modify only),
+and deleting Lucas's files needs his explicit say-so anyway.
+Action taken: pushed latest tree HANDOFF.md to main (commit
+2460c408cd6d09f84a67aafb9d22054cd73fd096), which auto-deployed as
+Pages deployment e9da2f55 (github:push, success). Repo HANDOFF now
+matches the tree version except this entry itself (same standing lag
+as before — the entry describing a push always lands after it).
+Repo site content is now fully current 1.4.1; the only cleanup left
+is the OneDrive/ decision, pending Lucas.
+
+---
+## HANDOFF: 2026-10-25 ~15:23 MDT — Lucas APPROVED OneDrive/ deletion (this agent, for the other agent)
+
+Lucas tapped "Yes, delete OneDrive/ from the repo (I'll do it on
+GitHub web)". Deletion itself is PENDING his web action (connector
+cannot delete). When done, verify: repo main has no OneDrive/ paths,
+new github:push Pages deployment succeeds, live OneDrive URLs return
+404, canonical home still byte-identical to dist/index.html. Do NOT
+push another HANDOFF-only commit before his deletion lands, or it
+will trigger a separate auto-deploy; bundle the post-deletion HANDOFF
+note with the verification instead if a push is needed at all.
+
+---
+## HANDOFF: 2026-10-25 ~16:35 MDT — Dashboard greeting brand fix (this agent, for the other agent)
+
+Lucas (screenshot of the empty-state dashboard) asked to add the "."
+in the dashboard for TINKL. — the greeting read "Welcome to TINKL"
+without the trailing period, violating the standing brand rule.
+Fix: js/modules/views/dashboard.js line 47, 'Welcome to TINKL' →
+'Welcome to TINKL.' (empty-state greeting only; the "Hi, <pet>!" greeting
+is unaffected). Rebuilt dist (BUILD_ID e642c6f458, SW
+tinkl-e642c6f458, 89 files, Worker origin correct); verified: check
+140 files pass, npm test 73/73 pass, dist dashboard.js contains the
+new greeting with 0 old occurrences. NOT deployed — awaiting Lucas's
+deploy decision; version stays 1.4.1 (rebuild only). Also found, NOT
+changed, pending Lucas's call: index.html apple-mobile-web-app-title
+"TINKL", brand-mark img alt "TINKL Logo", manifest name "TINKL —
+Premium Pet Care Tracker" — all lack the trailing period.
+
+---
+## HANDOFF: 2026-10-25 ~16:46 MDT — Dashboard greeting fix DEPLOYED (this agent, for the other agent)
+
+Lucas approved deploy of the "Welcome to TINKL." dashboard fix.
+Push: commit 04222a78490e42de7eef927443eed17bac946e6a on main,
+exactly 2 files (js/modules/views/dashboard.js, sw.js), blob-SHA
+verified against rebuilt dist. Note: the FIRST push attempt was
+interrupted by a service restart and did NOT apply (verified HEAD
+still 2460c40, old blobs intact); the retry succeeded — do not
+treat the interrupted attempt as a duplicate commit. Pages
+deployment 601ab6a2 (github:push, production, all stages success,
+alias tinkl.techguruofficial.us). Live verified: dashboard.js
+serves "Welcome to TINKL.", sw.js cache tinkl-e642c6f458,
+homepage byte-identical to dist index.html. Version stays 1.4.1.
+Other period-less spots (apple-mobile-web-app-title, brand img alt,
+manifest name) remain UNCHANGED pending Lucas's call. Repo HANDOFF
+lags tree by the cleanup-audit + dot-fix entries (standing pattern).
+
+---
+## HANDOFF: 2026-10-25 ~18:40 MDT — Nav drawer scroll fix + full viewport audit (this agent, for the other agent)
+
+Lucas reported the sidebar/dropdown nav sometimes hides its lower tabs.
+Reproduced in local Playwright against dist (8 viewports, 13 views):
+sidebar content is 674px tall with overflow visible and no scroll, so
+at 1280x600 Providers + Settings were cut off and unreachable
+(scrollTop stayed 0 despite 74px of overflow); mobile landscape
+844x390 hid 6 items; 360x640 hid Settings. Tall windows fit, which
+is why it only happened "sometimes". Also found: Care view filter
+row overflowed horizontally on 360/390px phones (doc 417px wide);
+mobile drawer did not lock body scroll (page moved behind it).
+Fix (source, rebuilt dist BUILD_ID 0ff0e80d3d, check 140 ok,
+tests 73/73): .sidebar overflow-y:auto + overscroll contain,
+brand/nav-items flex-shrink:0, mobile drawer height 100dvh,
+body.nav-open scroll lock wired in menuBtn toggle + goto() +
+outside-click close, .chart-tabs flex-wrap:wrap. Re-audit:
+all cutoff cases now scroll to reveal the last item fully
+(desktop-short 94/94, landscape 304/304, mobile-short 54/54),
+Care overflow gone, all 13 views activate on all 8 viewports,
+no page errors. Bottom-nav overlap flags at scroll-top were
+false positives: a bottom-scroll re-check showed every flagged
+button scrolls clear (covered=0 at page bottom). NOT changed:
+Household has no sidebar entry and bnav is hidden on desktop,
+so it is unreachable via visible nav on desktop — left for
+Lucas's call (add to sidebar vs leave). NOT deployed: 6 dist
+files differ from repo HEAD 04222a7 (sw.js + 3 CSS + app.js +
+navigation.js); awaiting Lucas's deploy call.
+
+---
+## HANDOFF: 2026-10-25 ~18:50 MDT — Nav overhaul BUILT, VISUALLY VERIFIED, DEPLOYED (this agent, for the other agent)
+
+Lucas approved the friendlier nav direction. Shipped in one deploy:
+(1) sidebar scroll (overflow-y:auto, dvh drawer, scroll-lock);
+(2) sidebar section headers Overview / Daily care / History &
+insights / Manage (headers only, no collapsing state);
+(3) Household moved into Overview (was unreachable via visible
+nav on desktop — sidebar had no entry and bnav is hidden >900px);
+(4) bottom bar is now a swipe row (safe space-around, 76px
+snap items, hidden scrollbars, active tab scrollIntoView);
+(5) Care filter row wraps (was 417px wide on 360px phones).
+Visual verification (local dist, Playwright shots, inspected
+by eye) caught one more bug metrics missed: the fixed bottom
+bar (z 45) sat on top of the open drawer (z 40) and covered its
+last row — fixed with .sidebar.open z-index 60 in the mobile
+block, re-shot and confirmed Settings fully visible on top.
+Final audit: 8 viewports x 13 views, all activate, no
+h-overflow, no page errors; sidebar scrolls to last item fully
+on every short viewport; bnav scrollWidth 548 > client 334 at
+360px with Insights peeking, Household glides fully into bar
+on tap. Build 48a2a5155e, check 140 ok, tests 73/73.
+DEPLOYED: commit 7f110e6 (7 files: index.html, sw.js, 3 CSS,
+app.js, navigation.js), Pages 45fd003c github:push success,
+live verified (SW 48a2a5155e, index byte-identical, household
+x2, nav-section x4, all CSS markers present, home 200).
+Version stays 1.4.1. Audit + shots: ~/workspace/nav-viewport-audit/
+(results-final.json, shots/*.png).
+
+## HANDOFF: 2026-10-25 ~21:52 MDT (2026-10-26T03:52Z) — TECHGURU-MUSE — Splash (1) + first-run intro (2) + Honey hero (6) + Settings refinement (NOT DEPLOYED)
+What changed and why (Lucas approved ideas 1, 2, 6 from the Oct 25 loader thread, then picked the photo himself, then asked for the Settings refinement):
+1. Cold-start splash (index.html #splash + css/components.css): paw-trail (4 paws ascending) + glowing paw + "TINKL." wordmark + "EVERY POTTY, PERFECTLY TRACKED." Pure CSS + inline SVG, no downloads, offline-safe. Hides at first render after a 1000ms brand moment (long enough for the choreography to complete — the first cut hid at 500ms and clipped the tagline, caught by eye and fixed), 1200ms fallback cap, tap skips instantly, 4s CSS auto-hide safety net if JS dies. Reduced-motion: animations off.
+2. First-run intro (index.html #introBackdrop + css/components.css + js/app.js): "Welcome to TINKL." + Honey circle hero + 3 cards (Add your pet / One-tap Quick Log / Vet-ready reports) + Get started / Skip + "Built for Honey, and every good dog." Shows once ever (localStorage tinkl_intro_seen), funnels through splash-hide, Esc/backdrop-click also dismiss. Deliberately NOT class .backdrop: the first e2e run proved a second .backdrop (even hidden) breaks tests' strict-mode .backdrop selectors — intro has its own #introBackdrop styles instead.
+3. Honey hero (assets/honey-hero.jpg, 320x320, 15 KB): Lucas sent 6 Honey photos and told Muse to pick; picked the tennis-ball puppy (awake, direct gaze, reads at 112px; sleepy shots mush at that size, illustrations aren't really her). Square-cropped biased up, optimized with PIL. Precached by the build (84 files). The other 5 photos stay in Lucas's media library for later use.
+4. Settings refinement (index.html #view-settings + css/views.css): root cause found — the global `select, input { width: 100% }` rule crushed inline controls in flex rows. Snooze is now a stacked full-width field (label on top, 316px picker); Quiet hours is a labeled 2-col grid (152px time inputs, label above each); switch rows got grouped-list hairline dividers + even padding. Reordered top-to-bottom: Account -> Notifications -> Appearance -> Backup & Restore -> Cloud Sync -> Danger Zone (Backup and Cloud Sync finally adjacent; Cloud Sync's "requires an account (above)" is now literally true). All IDs unchanged; settings.js untouched.
+How verified: check 141 files ✔; npm test 73/73 ✔; Playwright flows on dist (splash visible at load, gone ~1s, intro once-only via both Skip and Get started, reload never re-shows intro, tap skips splash, zero page errors) + shots inspected (splash composition, mobile + desktop intro, settings top + notifications; mobile intro tightened so the Honey line fits without scrolling). E2E: run1 showed 3 failures (backdrop collision + 2 cascades); run2 31/31 ✔ after the backdrop fix; run3 30/31 — the 1 failure was a RACY TEST WAIT (passkeys test waited for any text, and the "Loading…" placeholder counts as text; fixed test-only in e2e/auth.test.mjs to wait out Loading…, 30s ceiling); auth rerun 3/3 ✔. No passkey/worker/app code changed for that failure.
+Build: dist build e9a90984e0 (e2e harness rebuild; content = fd66eb46db — only a test file changed since, and e2e/ is build-excluded). Version stays 1.4.1. NOT pushed: repo main is still 7f110e6. Deploy file list vs repo HEAD: CHANGED _headers, css/components.css, css/views.css, index.html, js/app.js, js/config.js, sw.js; ADDED assets/honey-hero.jpg (binary — GitHub web upload, connector cannot do binaries). Staging prepared at ~/workspace/tinkl-splash-settings-staging/ (7 text files + this HANDOFF.md).
+Still open (unchanged): live console check, OneDrive/ deletion (paused), iOS Chrome not-secure (paused), MailChannels DNS + DKIM (pending Lucas).
+
+## HANDOFF: 2026-10-26 ~01:27 MDT (2026-10-26T07:27Z) — TECHGURU-MUSE — LUCAS-PROVIDED BRANDED SPLASH + APPLE STARTUP IMAGES (built, verified, NOT deployed)
+Lucas rejected the generic SVG-paw splash (Oct 25 ~22:40 MDT): the loader must be on-brand, paw exactly as in the navbar dropdown, wordmark exactly as it should look. He then sent tinkl-splash_2.html (standalone branded splash) + tinkl-apple-startup_2.zip (15 iOS startup images + link tags). Integrated per his "add this splash screen to the loader" + "don't stop until I say so" (Oct 26 ~01:11 MDT).
+What changed in THIS tree (source; dist = build e8720c0467, version stays 1.4.1):
+- index.html: old #splash (SVG trail paws + plain wordmark) replaced with his markup: stage (bloom/track/ring/512px holographic paw img/sheeen) + gradient word "TINKL." (yellow period) + "Every Potty. Perfectly Tracked." + gradient progress bar + "POWERED BY TECHGURU" + Skip button. Paw is a file asset now (assets/tinkl-splash-paw.png, 138 KB, same artwork as the navbar brand-mark, higher resolution — verified by eye, not by bytes: navbar data-URI is 45 KB, splash file 138 KB). The pawSym SVG symbol defs were KEPT (the intro Honey icon still uses #pawSym). All 15 apple-touch-startup-image links added to head (href /splash/startup-*.png, verbatim from his links file).
+- css/components.css: old splash CSS removed; his CSS adapted ONLY by selector (#tinkl-splash -> #splash), hide class (.is-leaving -> .done, the class js/app.js already adds), plus cursor:pointer and a 6s CSS safety net after his 5s JS cap. His reduced-motion block kept.
+- js/app.js: brand moment 1000ms -> 3600ms (his MIN), fallback cap 1200ms -> 5000ms (his MAX); tap anywhere on splash or Skip still dismisses instantly; intro still funnels through hideSplash (first run only).
+- scripts/build.mjs: SKIP_PRECACHE += /^\/splash\// so the 7.9 MB of iOS launch images are SERVED but not precached (iOS fetches them at home-screen launch; precaching them would bloat install). The 138 KB splash paw IS precached (the loader needs it offline).
+- _headers.template: /splash/* Cache-Control public, max-age=604800 (same as icons).
+- e2e (test-only): intro-dismiss wait 3000ms -> 8000ms in all 4 files (10 spots) because the splash now runs 3.6s before the intro can open.
+- New tree files: assets/tinkl-splash-paw.png, splash/ (15 PNGs). His demo-app div and standalone script were NOT copied (demo placeholder + app.js already owns hide timing).
+How verified (Oct 26 ~01:16–01:27 MDT): production build (TINKL_WORKER_URL=https://tinkl-sync.techguruofficial.workers.dev) ✔ 106 files, precache 85, BUILD_ID e8720c0467; check ✔ 157 files; npm test 73/73 ✔; e2e run4 (log ~/workspace/splash-intro-verify/e2e-run4.log) 31/31, 0 fail ✔; Playwright on the production dist: settled splash at 3.4s (paw naturalWidth 512, word/tag/by exact, bar full 170px), all 15 /splash/ URLs 200, zero page errors, intro opens after splash and dismisses, video preview recorded. BUG CAUGHT BY EYE: the tagline initially wore a pill background/border/padding from the app's pet-tag .tag rule (his scoped #splash .tag sets no background, so the app rule bled through) — fixed with an explicit background:none/border:0/padding:0/border-radius:0 reset on #splash .tag, re-shot and confirmed plain text.
+CAUGHT BEFORE DEPLOY: the e2e harness rebuilds dist with WORKER_URL=http://127.0.0.1:8795 (its own test worker). That harness dist (SW tinkl-7bd3f9b1fc) was DISCARDED and dist was rebuilt with the production Worker URL (BUILD_ID e8720c0467, deterministic — same id as the pre-e2e production build). NEVER deploy a harness-built dist.
+Diff vs repo main 7f110e6 (blob-SHA verified): CHANGED text = _headers, css/components.css, css/views.css, index.html, js/app.js, sw.js (js/config.js already matches — not in the push). ADDED binaries (GitHub web, connector cannot push binaries) = assets/honey-hero.jpg, assets/tinkl-splash-paw.png, 15 splash/startup-*.png. Staging dir ~/workspace/tinkl-branded-splash-staging/ holds the 6 changed text files; this HANDOFF.md joins them at push time. Previous staging dir tinkl-splash-settings-staging/ is SUPERSEDED (generic-splash batch). NOT deployed, NOT pushed — awaiting Lucas's deploy tap.
+
+## HANDOFF: 2026-10-26 ~03:40 MDT (2026-10-26T09:40Z) — TECHGURU-MUSE — HIGH-RES LOADER PAW + SHARPER HONEY HERO (built, verified, NOT deployed)
+Lucas (Oct 26 ~03:32 MDT): loader logo looks grainy / not high-res; Honey hero "doesn't look that good", "very short", "shows like a flash and then it goes away".
+Diagnosis (verified, not guessed): (1) GRAIN = two compounding causes: the loader paw file was Lucas's 138 KB heavily-compressed 512px export, displayed at ~208 CSS px = ~624 device px on a 3x phone — i.e. upscaled AND compression-noisy. Reproduced at deviceScaleFactor=3: crunchy speckled outline + noisy gradients. No larger original exists in the project (512 is the master; media-library paw is 120px; maskable icons are opaque-background, unsuitable). (2) HERO = loose crop + heavy compression: the old 320px hero (15 KB) framed Honey's face small with the ball dominating, and on desktop (112px display = 336 device px at 3x) it was also upscaled. Either way the old crop read small and soft. (3) "FLASH" = NOT an app bug: the intro has NO auto-dismiss timer (dismiss only on Get started / Skip / backdrop-click / Esc) and shows once ever (localStorage tinkl_intro_seen). The flash Lucas saw was the preview video, which dismissed the intro after ~1s to show the dashboard. The new unhurried preview holds the intro 6s.
+Fix (source only, no markup/CSS/JS change except img width/height attrs 512 -> 768):
+- assets/tinkl-splash-paw.png: rebuilt from tinkl-logo-paw3.png (the least-compressed 512 master, 319 KB, same artwork, transparent) -> 768x768 Lanczos + unsharp mask, 657 KB. Phones now DOWNSCALE (768 -> 624 device px) instead of upscaling. 3x close-up verified by eye: outline clean, gradients smooth, crunchy grain gone. Precache cost +519 KB, stated to Lucas; if he has a 1024+ original export it should replace this.
+- assets/honey-hero.jpg: re-cropped from the 993x1140 tennis-ball original, face-centered 800px box (x 100-900, y 40-840) -> 640x640 JPEG q88, 48 KB (was 320px/15 KB). Face now fills the circle; 3x close-up verified: eyes + fur detail crisp. Display size unchanged (88px mobile / 112px desktop) so the mobile fold fix is untouched.
+- index.html: paw img width/height attrs 512 -> 768 (display is CSS-controlled; attrs are just the intrinsic hint).
+Verified: production build 5b42a721a7 (production Worker URL) ✔ 106 files, precache 85; check ✔ 157; unit 73/73, fail 0 ✔; Playwright 3x paw before/after + 3x hero close-up + unhurried video (splash full 3.6s -> intro held 6s -> Get started -> dashboard), zero page errors. e2e run5 started (log ~/workspace/splash-intro-verify/e2e-run5.log) — image-only change, no assertions touch image bytes; result to be confirmed when it lands. Staging refreshed (index.html + sw.js from production build; text set unchanged). NOT deployed, NOT pushed — awaiting Lucas's deploy tap. NEXT (queued by Lucas 03:33 MDT, after this task): Estimate Closer + products page update and deploy.
+
+## HANDOFF: 2026-10-26 ~03:55 MDT (2026-10-26T09:55Z) — TECHGURU-MUSE — E2E RUN5 FLAKE, RERUN GREEN, PRODUCTION DIST RESTORED
+Full suite run5 (log ~/workspace/splash-intro-verify/e2e-run5.log): 30/31. Sole failure: clinic.test.mjs:82 "ONE short secure reply link" — assertion "server response must not contain \"Sam\"" tripped (response contained the test owner name). All downstream clinic-flow tests in the same run PASSED (decrypt, accept, amend, Vet Pass, tamper fail-closed), and run4 (31/31) passed this same test on the same worker/link code. Clinic suite rerun alone (log ~/workspace/splash-intro-verify/e2e-clinic-rerun.log): 9/9 PASS. Conclusion: run-order flake, not a regression from the image-only paw/hero change (image bytes cannot put a name in a server response). Exact flake mechanism NOT proven from the log — stated, not guessed. After the reruns, dist rebuilt with the production Worker URL (BUILD_ID 5b42a721a7 again, deterministic) and staging verified byte-identical to production dist (6 text files + HANDOFF.md). Deploy batch unchanged, still awaiting Lucas's tap.
+
+## HANDOFF: 2026-10-26 ~04:45 MDT — TINKL. build 5b42a721a7 DEPLOYED LIVE via direct Pages upload (initiative rule)
+- What changed: branded splash (Lucas's holographic paw, 768px high-res rebuild), first-run intro (Honey hero 640px face-centered crop), Settings refinement, 15 Apple startup images. Version stays 1.4.1.
+- How deployed: `wrangler pages deploy dist` (direct upload, 105 files) — live verified: both hosts 200, index byte-identical to dist, SW tinkl-5b42a721a7, paw 656,612 bytes byte-identical, hero 48,475 bytes byte-identical, splash URL 200.
+- Repo state: text files + this HANDOFF pushed to main with Git deployments temporarily DISABLED (so the push cannot auto-deploy binary-less content). 17 binaries still to land in repo via GitHub web upload; Git deployments re-enable after that, then live re-verified.
+- Handoff note for the other agent: live is already correct from the direct upload; the repo push + binary upload only bring the repo back to complete — do not redeploy anything else on top of this.

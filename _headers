@@ -31,6 +31,9 @@
 /assets/icons/*
   Cache-Control: public, max-age=604800
 
+/splash/*
+  Cache-Control: public, max-age=604800
+
 # The Vet Pass fragment (#d=...) is never sent to servers; also keep the page out of search and referrers.
 /vetpass.html
   Referrer-Policy: no-referrer
