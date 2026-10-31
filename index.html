@@ -41,14 +41,16 @@
 </head>
 
 <body data-theme="dark">
-  <!-- Cold-start splash: Lucas-provided branded splash (holographic paw, gradient wordmark, progress bar). Tap or Skip dismisses. -->
+  <!-- Cold-start splash: paw -> Honey crossfade (2026-10-30, revised per Lucas). Company paw logo first, fades into Honey (the PWA was built for her), then the first-run intro for new users. Tap or Skip dismisses. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="pawSym" viewBox="0 0 64 64"><path fill="currentColor" d="M32 36c-8.5 0-15 5.5-15 11.5 0 4.5 3.5 8 8 8 2.5 0 4-1 7-1s4.5 1 7 1c4.5 0 8-3.5 8-8C47 41.5 40.5 36 32 36z"/><ellipse fill="currentColor" cx="16" cy="24" rx="4.5" ry="6" transform="rotate(-15 16 24)"/><ellipse fill="currentColor" cx="26" cy="16" rx="4.5" ry="6" transform="rotate(-5 26 16)"/><ellipse fill="currentColor" cx="38" cy="16" rx="4.5" ry="6" transform="rotate(5 38 16)"/><ellipse fill="currentColor" cx="48" cy="24" rx="4.5" ry="6" transform="rotate(15 48 24)"/></symbol></defs></svg>
+  <!-- cache-bump 2026-10-26: new SW version evicts any 6e17504ba1 caches poisoned during the 09:15 propagation window (fallback HTML saved as images). No visible change. -->
   <div id="splash" role="status" aria-live="polite" aria-label="Loading TINKL">
     <div class="stage">
       <div class="bloom"></div>
       <div class="track"></div>
       <div class="ring"></div>
-      <img class="paw" alt="" src="/assets/tinkl-splash-paw.png" width="768" height="768" decoding="async" />
+      <img class="paw" alt="" src="/assets/tinkl-splash-paw.png" width="768" height="768" decoding="async" fetchpriority="high" />
+      <img class="honey-star" alt="Honey, the dachshund who inspired TINKL." src="/assets/honey-loader-star.jpg" width="1024" height="1024" decoding="async" />
       <div class="sheen"></div>
     </div>
     <div class="word">TINKL<i>.</i></div>
@@ -548,6 +550,18 @@
             Last synced: <span id="syncStatus">never</span>
           </div>
         </div>
+        <!-- Feedback (Version A) — visible card, NOT inside Danger Zone -->
+        <div class="card mb-4">
+          <div class="section-title mb-4">💬 Help shape TINKL.</div>
+          <div class="text-mut fs-09 mb-4">What's working? What's not? <b>I read every note — Lucas.</b></div>
+          <div class="fb-stars" id="fbStars" role="radiogroup" aria-label="Rate TINKL."></div>
+          <div class="form-row"><label for="fbText">Tell me honestly…</label><textarea id="fbText" maxlength="2000" placeholder="The potty log is great, but I wish…"></textarea></div>
+          <div class="form-row"><label for="fbEmail">Email (optional — for a reply only)</label><input type="email" id="fbEmail" placeholder="you@example.com" autocomplete="email"></div>
+          <label class="fb-check"><input type="checkbox" id="fbUpdates"><span>Also add me to the TINKL. updates list (new features, early access — a few emails a year).</span></label>
+          <div class="sync-actions" style="margin-top:10px"><button class="btn btn-primary" id="fbSend" type="button">Send feedback</button></div>
+          <div class="fb-status text-mut fs-09" id="fbStatus"></div>
+          <div class="text-mut" style="font-size:.8rem;margin-top:8px">No account needed. If you leave no email, your feedback is still welcome — it just arrives anonymously.</div>
+        </div>
         <div class="card danger-border">
           <div class="section-title mb-4 danger-title"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 4.4 2.9 18.5A1.7 1.7 0 0 0 4.4 21h15.2a1.7 1.7 0 0 0 1.5-2.5L13.4 4.4a1.7 1.7 0 0 0-2.8 0Z"/><path d="M12 9.5v4.2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg> Danger Zone</div>
           <div class="row">
@@ -597,25 +611,28 @@
   <div class="intro-backdrop" id="introBackdrop" role="dialog" aria-modal="true" aria-labelledby="introTitle">
     <div class="modal intro-modal">
       <div class="intro-head">
-        <img class="intro-hero" src="/assets/honey-hero.jpg" alt="Honey, the dachshund who inspired TINKL." width="112" height="112" />
-        <h2 class="intro-title" id="introTitle">Welcome to TINKL.</h2>
-        <p class="intro-sub">Three things to know before your first log.</p>
+        <div class="intro-hero-wrap">
+          <img class="intro-hero" src="/assets/honey-hero.jpg" alt="Honey, the dachshund who inspired TINKL." width="128" height="128" />
+        </div>
+        <h2 class="intro-title" id="introTitle">Welcome to <span class="intro-word">TINKL<i>.</i></span></h2>
+        <p class="intro-sub">Three quick steps to get started.</p>
       </div>
       <div class="intro-grid">
         <div class="intro-card">
-          <span class="intro-ic"><svg class="gicon" viewBox="0 0 64 64" aria-hidden="true"><use href="#pawSym"/></svg></span>
-          <h3>Add your pet</h3>
-          <p>Name, photo, birthday and breed — your pet's profile is the heart of everything.</p>
+          <img class="intro-card-img" src="/assets/honey-loader-star.jpg" alt="Honey" width="112" height="112" decoding="async" />
+          <h3>1. Create your pet</h3>
+          <p>Add your pet's name, photo, birthday and breed — their profile is the heart of everything.</p>
         </div>
         <div class="intro-card">
-          <span class="intro-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5c3 4 6 7.4 6 11a6 6 0 0 1-12 0c0-3.6 3-7 6-11Z"/></svg></span>
-          <h3>One-tap Quick Log</h3>
-          <p>Pee, poop, feed, walks and meds, logged from the dashboard in a single tap.</p>
+          <img class="intro-card-img" src="/assets/anni-loader.jpg" alt="Anni" width="112" height="112" decoding="async" />
+          <h3>2. How to use it</h3>
+          <p>Log pee, poop, meals, walks and meds from the dashboard in a single tap — Quick Log does the rest.</p>
         </div>
         <div class="intro-card">
-          <span class="intro-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 21V5.5A1.5 1.5 0 0 1 7 4h10a1.5 1.5 0 0 1 1.5 1.5V21"/><path d="M3 21h18"/><path d="M12 8v6M9 11h6"/></svg></span>
-          <h3>Vet-ready reports</h3>
-          <p>Weekly health logs and a Vet Pass link your clinic can open in one tap.</p>
+          <span class="intro-ic"><svg class="gicon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg></span>
+          <h3>3. Review &amp; feedback</h3>
+          <p>Loving TINKL.? Tell Lucas what you think — your note shapes what gets built next.</p>
+          <button class="btn btn-secondary intro-fb" id="introFeedbackBtn" type="button">Leave feedback</button>
         </div>
       </div>
       <div class="intro-foot">
