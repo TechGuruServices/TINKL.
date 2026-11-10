@@ -86,6 +86,8 @@
       <div class="nav-item" data-view="appointments"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="m9 15.2 2 2 4-4"/></svg></span>Appointments</div>
       <div class="nav-item" data-view="providers"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5v6a4 4 0 0 0 8 0v-6"/><path d="M10 13.5v2a4.5 4.5 0 0 0 9 0v-2.5"/><circle cx="19" cy="11" r="2"/></svg></span>Providers</div>
       <div class="nav-item" data-view="settings"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.2l2.1 2.1M17.7 15.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 17.8l2.1-2.1M17.7 8.3l2.1-2.1"/></svg></span>Settings</div>
+      <div class="nav-section">For clinics</div>
+      <a class="nav-item" href="/portal.html"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M12 8v4M10 10h4"/></svg></span>Clinic Portal</a>
       
     </aside>
 
@@ -383,7 +385,7 @@
           <div class="section-title mb-4">👤 Account</div>
           <div id="accUnavailable" class="text-mut fs-09" hidden>Cloud features aren’t configured for this build.</div>
           <div id="accSignedOut">
-            <div class="text-mut fs-09 mb-4">Create a free account to back up your pets’ data and restore it on another device. TINKL works fully offline without one.</div>
+            <div class="text-mut fs-09 mb-4">Your logs live only on this phone. A free account backs them up, so a lost phone doesn’t wipe them — and restores them on a new phone.</div>
             <div class="sync-actions">
               <button class="btn btn-primary" id="accLogin" type="button">Sign in</button>
               <button class="btn btn-secondary" id="accRegister" type="button">Create account</button>
@@ -391,6 +393,13 @@
           </div>
           <div id="accSignedIn" hidden>
             <div class="text-mut fs-09 mb-4">Signed in as <b id="accEmail"></b></div>
+            <div class="mb-4" id="accProRow" hidden>
+              <div class="section-title" style="font-size:.95rem;margin-bottom:6px">✨ TINKL. Pro</div>
+              <div class="text-mut fs-09" id="accProStatus">Checking…</div>
+              <div class="sync-actions" style="margin-top:8px">
+                <button class="btn btn-primary" id="accProUpgrade" type="button" hidden>Upgrade to Pro</button>
+              </div>
+            </div>
             <div class="mb-4">
               <div class="section-title" style="font-size:.95rem;margin-bottom:6px">🔑 Passkeys</div>
               <div id="accPasskeys" class="text-mut fs-09"></div>
@@ -539,10 +548,11 @@
           <div class="section-title mb-4">☁️ Cloud Sync</div>
           <div class="text-mut fs-09 mb-4">
             Back up your data to your account and restore it on another device.
-            <br><i>Requires an account (above). Only you can access your backup.</i>
+            <br><i>Only you can access your backup.</i>
           </div>
           <div class="sync-actions">
             <button class="btn btn-secondary" id="syncPushBtn">📤 Back Up to Cloud</button>
+                <button class="btn btn-secondary" id="syncCreateAccountBtn" type="button" hidden>Create free account to turn on Cloud Sync</button>
             <button class="btn btn-secondary" id="syncPullBtn">📥 Restore from Cloud</button>
             <button class="btn btn-danger" id="syncDelBtn">🗑 Delete Cloud Backup</button>
           </div>

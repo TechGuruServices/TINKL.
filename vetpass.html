@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="referrer" content="no-referrer" />
-<title>Vet Pass — Read-only Health Report</title>
+<title>VetPass — Read-only Health Report</title>
 <link rel="stylesheet" href="/css/vetpass.css" />
 </head>
 <body>
+<div class="vp-topbar">
+  <button class="vp-nav-btn" id="backBtn" type="button">‹ Back</button>
+  <span class="vp-topbar-title">VetPass</span>
+  <button class="vp-nav-btn" id="printBtn" type="button" hidden>🖨 Print</button>
+</div>
 <div class="wrap" id="app"><p class="mut">Loading report…</p></div>
-<button class="print-btn" id="printBtn" type="button" hidden>🖨 Print</button>
 
 <!-- Classic scripts (external only: the site CSP forbids inline script). -->
 <script src="/js/vendor/lz-string.min.js"></script>
