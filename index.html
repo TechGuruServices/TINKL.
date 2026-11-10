@@ -87,7 +87,7 @@
       <div class="nav-item" data-view="providers"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5v6a4 4 0 0 0 8 0v-6"/><path d="M10 13.5v2a4.5 4.5 0 0 0 9 0v-2.5"/><circle cx="19" cy="11" r="2"/></svg></span>Providers</div>
       <div class="nav-item" data-view="settings"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.2l2.1 2.1M17.7 15.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 17.8l2.1-2.1M17.7 8.3l2.1-2.1"/></svg></span>Settings</div>
       <div class="nav-section">For clinics</div>
-      <a class="nav-item" href="/portal.html"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M12 8v4M10 10h4"/></svg></span>Clinic Portal</a>
+      <a class="nav-item" href="/portal.html"><span class="nav-ic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M12 8v4M10 10h4"/></svg></span><span class="nav-label">Clinic Portal<span class="nav-sub">Join the free pilot</span></span></a>
       
     </aside>
 
@@ -323,7 +323,7 @@
         <!-- Health Radar (on-device anomaly flags) -->
         <div id="insightRadar" class="mt-4"></div>
 
-        <!-- AI narrative card -->
+        <!-- Summary card -->
         <div class="card mt-4" id="insightNarrativeCard">
           <div class="section-head margin-0-0-12">
             <div class="section-title"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 2.8-1.6 5.2-4 6.4V17a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.6A7 7 0 0 1 12 2Z"/><path d="M9 21h6M10 17.5h4"/></svg> Summary</div>
@@ -385,7 +385,7 @@
           <div class="section-title mb-4">👤 Account</div>
           <div id="accUnavailable" class="text-mut fs-09" hidden>Cloud features aren’t configured for this build.</div>
           <div id="accSignedOut">
-            <div class="text-mut fs-09 mb-4">Your logs live only on this phone. A free account backs them up, so a lost phone doesn’t wipe them — and restores them on a new phone.</div>
+            <div class="text-mut fs-09 mb-4">Your logs live only on this phone. A free account signs you in for secure VetPass links and 2 free vet reports a month — but it does not back up your data. Cloud backup and sync across devices are TINKL. Pro.</div>
             <div class="sync-actions">
               <button class="btn btn-primary" id="accLogin" type="button">Sign in</button>
               <button class="btn btn-secondary" id="accRegister" type="button">Create account</button>
@@ -396,9 +396,11 @@
             <div class="mb-4" id="accProRow" hidden>
               <div class="section-title" style="font-size:.95rem;margin-bottom:6px">✨ TINKL. Pro</div>
               <div class="text-mut fs-09" id="accProStatus">Checking…</div>
+              <div class="text-mut fs-09" id="accProQuota" style="margin-top:4px" hidden></div>
               <div class="sync-actions" style="margin-top:8px">
                 <button class="btn btn-primary" id="accProUpgrade" type="button" hidden>Upgrade to Pro</button>
               </div>
+              <div class="text-mut fs-09" id="accProBlurb" style="margin-top:6px">Pro unlocks unlimited vet reports, unlimited secure VetPass links, and cloud sync — $4.99/mo or $39.99/yr.</div>
             </div>
             <div class="mb-4">
               <div class="section-title" style="font-size:.95rem;margin-bottom:6px">🔑 Passkeys</div>
@@ -458,7 +460,7 @@
               <div class="fw-600">Snooze duration</div>
               <div class="text-mut">Minutes to postpone an alarm</div>
             </div>
-            <select id="snoozeSel">
+            <select id="snoozeSel" aria-label="Snooze duration">
               <option value="5">5 min</option>
               <option value="10">10 min</option>
               <option value="15">15 min</option>
@@ -554,12 +556,12 @@
         <div class="card mb-4">
           <div class="section-title mb-4">☁️ Cloud Sync</div>
           <div class="text-mut fs-09 mb-4">
-            Back up your data to your account and restore it on another device.
+            Cloud backup and sync across devices are TINKL. Pro — a free account alone does not back up your data.
             <br><i>Only you can access your backup.</i>
           </div>
           <div class="sync-actions">
             <button class="btn btn-secondary" id="syncPushBtn">📤 Back Up to Cloud</button>
-                <button class="btn btn-secondary" id="syncCreateAccountBtn" type="button" hidden>Create free account to turn on Cloud Sync</button>
+                <a href="#accountCard" id="syncCreateAccountLink" hidden>Create an account above to turn on Cloud Sync</a>
             <button class="btn btn-secondary" id="syncPullBtn">📥 Restore from Cloud</button>
             <button class="btn btn-danger" id="syncDelBtn">🗑 Delete Cloud Backup</button>
           </div>
@@ -614,13 +616,13 @@
 </main>
   </div>
 
-  <nav class="bnav" id="bnav">
-    <div class="bnav-item active" data-view="dashboard"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-9"/></svg></span>Home</div>
+  <nav class="bnav" id="bnav" tabindex="0" aria-label="Primary navigation">
+    <div class="bnav-item active" data-view="dashboard"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-9"/></svg></span>Dashboard</div>
     <div class="bnav-item" data-view="pets"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="8" r="1.6"/><circle cx="12" cy="6.2" r="1.6"/><circle cx="17" cy="8" r="1.6"/><path d="M12 12c-3 0-5.2 2-5.2 4.3 0 1.7 1.4 2.7 3 2.2.7-.2 1.4-.5 2.2-.5s1.5.3 2.2.5c1.6.5 3-.5 3-2.2C17.2 14 15 12 12 12Z"/></svg></span>Pets</div>
-    <div class="bnav-item" data-view="care"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/></svg></span>Care</div>
+    <div class="bnav-item" data-view="care"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/></svg></span>Care Log</div>
     <div class="bnav-item" data-view="health"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="4" y="9" width="16" height="6" rx="3"/><line x1="12" y1="9" x2="12" y2="15"/></g></svg></span>Health</div>
     <div class="bnav-item" data-view="insights"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 2.8-1.6 5.2-4 6.4V17a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.6A7 7 0 0 1 12 2Z"/><path d="M9 21h6M10 17.5h4"/></svg></span>Insights</div>
-    <div class="bnav-item" data-view="settings"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.2l2.1 2.1M17.7 15.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 17.8l2.1-2.1M17.7 8.3l2.1-2.1"/></svg></span>More</div>
+    <div class="bnav-item" data-view="settings"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.2l2.1 2.1M17.7 15.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 17.8l2.1-2.1M17.7 8.3l2.1-2.1"/></svg></span>Settings</div>
   
     <div class="bnav-item" data-view="household"><span class="bic"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.2 14.7c2.2.3 3.7 1.6 4.2 3.8"/></svg></span>Household</div></nav>
   <button class="fab" id="fab" aria-label="Add"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5v15M4.5 12h15"/></svg></button>
@@ -661,7 +663,7 @@
     </div>
   </div>
   <div class="toast-wrap" id="toastWrap"></div>
-  <div id="offlineBar"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8.8a15 15 0 0 1 5.4-3.3M9.5 5A15 15 0 0 1 21.5 8.8M5.3 12.5a10.5 10.5 0 0 1 3-1.8M15.7 10.7a10.5 10.5 0 0 1 3 1.8M8.3 16.2a5.8 5.8 0 0 1 3.4-1.2M12 15a5.8 5.8 0 0 1 3.3 1.1"/><path d="M12 19v.01"/><path d="M2.5 2.5l19 19"/></svg> Offline · changes save locally</div>
+  <div id="offlineBar"><svg class="gicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8.8a15 15 0 0 1 5.4-3.3M9.5 5A15 15 0 0 1 21.5 8.8M5.3 12.5a10.5 10.5 0 0 1 3-1.8M15.7 10.7a10.5 10.5 0 0 1 3 1.8M8.3 16.2a5.8 5.8 0 0 1 3.4-1.2M12 15a5.8 5.8 0 0 1 3.3 1.1"/><path d="M12 19v.01"/><path d="M2.5 2.5l19 19"/></svg> <span id="offlineBarTx">Offline · changes save locally</span></div>
 
 
   
