@@ -6,3 +6,8 @@
 .portal-foot{color:var(--mut);font-size:.85rem;margin-top:24px}
 .portal-foot a{color:var(--mut)}
 main h2{margin-top:28px}
+
+.portal-back{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);color:var(--ink);background:transparent;font-weight:700;font-size:.95rem;text-decoration:none;margin-bottom:20px}
+.portal-back svg{width:18px;height:18px;color:var(--acc);flex-shrink:0}
+.portal-back:hover{border-color:var(--acc)}
+.portal-back:focus-visible{outline:2px solid var(--acc);outline-offset:2px}

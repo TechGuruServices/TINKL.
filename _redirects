@@ -1,1 +1,9 @@
+# Cloudflare Pages redirects. Rules are evaluated top to bottom, first match wins;
+# specific redirects must sit above any catch-all SPA fallback (/* /index.html 200).
+# O1 (2026-11-10): this rule only takes effect when the deploy attaches _redirects
+# as deployment config (a form field on the deployment-create request, the way
+# wrangler does it). Uploading it as an ordinary manifest asset makes Pages serve
+# it as a static file and ignore the rules entirely — that is why this 301 did
+# not fire on the live site until the deploy script was fixed (see the fixed
+# deploy script handed to the coordinator with this work).
 /manifest.webmanifest /manifest.json 301
