@@ -40,7 +40,7 @@
   ],
   "id": "/",
   "lang": "en",
-  "name": "TINKL — Premium Pet Care Tracker",
+  "name": "TINKL. — Pet Care Tracker",
   "orientation": "portrait",
   "prefer_related_applications": false,
   "scope": "/",
@@ -53,7 +53,7 @@
       "type": "image/png"
     }
   ],
-  "short_name": "TINKL",
+  "short_name": "TINKL.",
   "shortcuts": [
     {
       "description": "One-tap pee log for the active pet",

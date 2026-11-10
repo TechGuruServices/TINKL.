@@ -101,8 +101,7 @@ module with side effects on import (bootstrap entry point, no exports).
 - `renderInsightBreakdown(d)` — activity-type percentage bars.
 - `renderInsightWeightChart(d)` — weight trend chart (Chart.js is a global, never imported).
 - `renderInsightNotesFeed(d)` — notes feed with log-note fallback.
-- `buildAIPrompt(d)` — plain-English structured summary used as AI input context (never UI text).
-- `generateInsightNarrative(d)` — AI narrative via API with rule-based fallback on failure.
+- `generateInsightNarrative(d)` — renders the local on-device summary from `buildFallbackNarrative(d)`; no AI service or API call is involved.
 - `buildFallbackNarrative(d)` — deterministic rule-based narrative.
 - `renderInsights()` — insights view: range tabs, grid, breakdown, weight chart, notes, vet report, narrative, copy/print buttons.
 

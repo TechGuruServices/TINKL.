@@ -1,0 +1,8 @@
+.portal-badge{display:inline-block;font-size:.8rem;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:4px 10px;margin:0 0 12px}
+.portal-cta{display:inline-block;background:var(--acc);color:#fff;font-weight:700;text-decoration:none;border-radius:10px;padding:10px 16px}
+.portal-cta:hover{opacity:.9}
+.portal-note{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:24px}
+.portal-note strong{color:var(--ink)}
+.portal-foot{color:var(--mut);font-size:.85rem;margin-top:24px}
+.portal-foot a{color:var(--mut)}
+main h2{margin-top:28px}
